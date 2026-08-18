@@ -17,8 +17,8 @@ export const HeredofamiliaresCard: React.FC<HeredofamiliaresCardProps> = ({
     onToggleViewMode,
 }) => {
     return (
-        <div className="w-full bg-white">
-            <div className="w-full bg-white">
+        <div className="w-full bg-transparent">
+            <div className="w-full bg-transparent">
                 <div data-section="heredofamiliares">
                     <AntecedentesHeredoFamiliares
                         formData={formData}

@@ -60,8 +60,8 @@ export const ProgressLine = React.memo<ProgressLineProps>(({
         <motion.div
             className="w-full bg-transparent flex flex-col items-center justify-center select-none z-50 transition-colors will-change-[height] pointer-events-auto"
             animate={{
-                // REMOVED ALL BORDERS -> Clean floating look
-                height: isScrolled ? 24 : 96, // Compact (24px) vs Full (96px)
+                // REMOVED ALL BORDERS -> Clean floating look, aligned h-12 with Documento Automático
+                height: isScrolled ? 28 : 60, // Compact (24px) vs Full (48px - h-12)
             }}
             transition={heightTransition}
         >
@@ -70,16 +70,15 @@ export const ProgressLine = React.memo<ProgressLineProps>(({
                 {/* The Track Container - Responsive Scrollable & Centered */}
                 <div 
                     ref={scrollContainerRef}
-                    className="w-full overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] grid items-center"
+                    className="w-full overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] grid items-center h-full"
                     style={{ gridTemplateColumns: "1fr auto 1fr" }}
                 >
                     <div /> {/* Left Spacer to prevent clipping on overflow */}
                     
-                    <div className="relative px-4 md:px-0 pt-[26px] md:pt-0 pb-0">
-                        {/* Note: I'm adjusting vertical alignment to match original spacing exactly. Actually, I will remove pt-[26px] to keep original logic: */}
+                    <div className="relative px-4 md:px-0 pt-0 pb-0">
                         <div
                             className="relative flex items-center justify-center transition-transform will-change-transform"
-                            style={{ width: TOTAL_WIDTH, height: 32 }}
+                            style={{ width: TOTAL_WIDTH, height: 56 }}
                         >
                             {/* 1. Gray Track Line */}
                             <motion.div
@@ -93,9 +92,26 @@ export const ProgressLine = React.memo<ProgressLineProps>(({
                                 transition={heightTransition}
                             />
 
+                                                                                    {/* 1.5 Breathing Organic Glow Aura (Sin cortes horizontales) */}
+                            <motion.div
+                                className="absolute left-0 top-1/2 -translate-y-1/2 bg-emerald-400/50 dark:bg-emerald-400/40 blur-md rounded-full pointer-events-none z-0"
+                                initial={{ width: 0 }}
+                                animate={{
+                                    width: ((currentStep + 1) * ITEM_WIDTH) + (currentStep * GAP_WIDTH) + 20,
+                                    height: isScrolled ? 10 : 34,
+                                    opacity: isGenerating ? [0.4, 0.9, 0.4] : 0.7
+                                }}
+                                transition={{
+                                    height: heightTransition,
+                                    width: { type: "spring", stiffness: 150, damping: 14 },
+                                    opacity: isGenerating ? { repeat: Infinity, duration: 2, ease: "easeInOut" } : { duration: 0.3 }
+                                }}
+                                style={{ transform: 'translate(-2px, -50%)' }}
+                            />
+
                             {/* 2. The Active Green Pill */}
                             <motion.div
-                                className="absolute left-0 top-1/2 -translate-y-1/2 bg-emerald-500 z-10 shadow-lg shadow-emerald-500/30 rounded-full overflow-hidden will-change-[height,width]"
+                                className="absolute left-0 top-1/2 -translate-y-1/2 bg-emerald-500 z-10 shadow-[0_2px_14px_rgba(16,185,129,0.45)] rounded-full overflow-hidden will-change-[height,width]"
                                 initial={{ width: 0 }}
                                 animate={{
                                     width: ((currentStep + 1) * ITEM_WIDTH) + (currentStep * GAP_WIDTH) + 16,
@@ -150,38 +166,6 @@ export const ProgressLine = React.memo<ProgressLineProps>(({
                     <div /> {/* Right Spacer */}
                 </div>
 
-                {/* 4. Section Title TRANSFORMATION */}
-                <AnimatePresence mode="wait">
-                    {!isScrolled ? (
-                        /* STATE A: BIG CENTERED BANNER (Not Scrolled) */
-                        <motion.div
-                            key="big-title"
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0, height: 'auto' }}
-                            exit={{ opacity: 0, y: -10, height: 0 }}
-                            transition={{ duration: 0.2 }}
-                            className="w-full text-center mt-4 px-4 max-w-[90vw] mx-auto overflow-hidden relative z-10"
-                        >
-                            <span className="text-sm font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest block truncate">
-                                {stepNames[currentStep]}
-                            </span>
-                        </motion.div>
-                    ) : (
-                        /* STATE B: CENTERED BADGE TITLE (Scrolled) */
-                        <motion.div
-                            key="small-title"
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.9 }}
-                            transition={{ duration: 0.2, delay: 0.1 }}
-                            className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex items-center justify-center z-10 pointer-events-none" // Absolute full width wrapper for perfect centering
-                        >
-                            <span className="bg-gray-100 dark:bg-zinc-800 px-3 py-0.5 rounded-full text-[9px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest whitespace-nowrap">
-                                {stepNames[currentStep]}
-                            </span>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
 
             </div>
         </motion.div>

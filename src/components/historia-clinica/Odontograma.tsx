@@ -31,6 +31,7 @@ interface OdontogramaProps {
   onRedaccionGenerada?: (text: string) => void;
   onToggleViewMode?: () => void;
   initialTeethState?: Record<number, any>;
+  minimalMode?: boolean;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -209,6 +210,7 @@ export const Odontograma: React.FC<OdontogramaProps> = ({
   handleOdontogramaChange,
   onRedaccionGenerada,
   initialTeethState,
+  minimalMode = false,
 }) => {
   const [dentition, setDentition]           = useState<DentitionMode>('permanent');
   const [teeth, setTeeth]                   = useState<Record<number, ExtState>>(
@@ -480,7 +482,7 @@ export const Odontograma: React.FC<OdontogramaProps> = ({
         flexDirection: 'column',
         alignItems: 'center',
         gap: 0,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: 'transparent',
         padding: '20px 0',
         width: '100%',
       }}>
@@ -608,7 +610,7 @@ export const Odontograma: React.FC<OdontogramaProps> = ({
           zIndex: 1,
           isolation: 'isolate',
           paddingBottom: 4,
-          backgroundColor: '#FFFFFF',
+          backgroundColor: 'transparent',
         }}
       >
         
@@ -643,8 +645,8 @@ export const Odontograma: React.FC<OdontogramaProps> = ({
 
         {/* Capa 3: Contenedor principal de los dientes */}
         <div
-          className={`rounded-2xl bg-white relative z-10 transition-all duration-500 ${
-            isListening ? 'border-transparent shadow-none' : 'border border-gray-100 shadow-sm'
+          className={`rounded-2xl bg-transparent relative z-10 transition-all duration-500 ${
+            isListening ? 'border-transparent shadow-none' : 'border-none shadow-none'
           }`}
           style={{
             overflow: 'visible',
@@ -652,31 +654,36 @@ export const Odontograma: React.FC<OdontogramaProps> = ({
             width: '100%',
             position: 'relative',
             zIndex: 1,
-            backgroundColor: '#FFFFFF',
+            backgroundColor: 'transparent',
           }}
         >
-          <p style={{
-            textAlign: 'center', fontSize: 7, fontWeight: 700,
-            letterSpacing: '2px', textTransform: 'uppercase',
-            color: '#D1D5DB', marginBottom: 10,
-            fontFamily: 'ui-sans-serif,system-ui,sans-serif',
-          }}>
-            ← Der. paciente &nbsp;|&nbsp; Izq. paciente →
-          </p>
+          {!minimalMode && (
+            <p style={{
+              textAlign: 'center', fontSize: 7, fontWeight: 700,
+              letterSpacing: '2px', textTransform: 'uppercase',
+              color: '#D1D5DB', marginBottom: 10,
+              fontFamily: 'ui-sans-serif,system-ui,sans-serif',
+            }}>
+              ← Der. paciente &nbsp;|&nbsp; Izq. paciente →
+            </p>
+          )}
 
           {renderDentition()}
 
-          <p className="text-center text-[8px] font-bold tracking-[2px] uppercase text-gray-300 mt-3">
-            Norma FDI · {dentition === 'permanent' ? '32 dientes permanentes' : dentition === 'pediatric' ? '20 dientes deciduos' : 'Dentición mixta'}
-          </p>
+          {!minimalMode && (
+            <p className="text-center text-[8px] font-bold tracking-[2px] uppercase text-gray-300 mt-3">
+              Norma FDI · {dentition === 'permanent' ? '32 dientes permanentes' : dentition === 'pediatric' ? '20 dientes deciduos' : 'Dentición mixta'}
+            </p>
+          )}
         </div>
       </div>
       
       {/* Controles Inferiores: [modos] [toggle vista] [voz] */}
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        marginTop: 16, flexWrap: 'wrap', gap: 8, padding: '0 8px',
-      }}>
+      {!minimalMode && (
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          marginTop: 16, flexWrap: 'wrap', gap: 8, padding: '0 8px',
+        }}>
         {/* Botones de modo de dentición */}
         <div className="flex rounded-xl border border-gray-200 bg-gray-50 p-0.5 gap-0.5">
           {(['permanent','pediatric','mixed'] as DentitionMode[]).map(mode => (
@@ -779,6 +786,7 @@ export const Odontograma: React.FC<OdontogramaProps> = ({
           </button>
         </div>
       </div>
+      )}
 
       {showVoiceModal && (
         <VoiceSelectorModal

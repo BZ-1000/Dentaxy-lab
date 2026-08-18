@@ -244,7 +244,7 @@ export const ToothBox: React.FC<ToothBoxProps> = ({
         pointerEvents: 'none',
         display: 'block',
         flexShrink: 0,
-        filter: 'drop-shadow(0px 3px 6px rgba(15, 25, 45, 0.25))', // Solo sombra natural
+        filter: 'drop-shadow(0px 0px 8px rgba(255, 255, 255, 0.85)) drop-shadow(0px 0px 18px rgba(255, 255, 255, 0.45)) drop-shadow(0px 3px 6px rgba(0, 0, 0, 0.4))', // Gradiente de luz blanca detrás de cada diente
         transition: 'all 0.15s ease-out',
         position: 'relative',
         zIndex: 5,

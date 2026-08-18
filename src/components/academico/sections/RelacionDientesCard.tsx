@@ -15,8 +15,8 @@ export const RelacionDientesCard: React.FC<RelacionDientesCardProps> = ({
     onToggleViewMode,
 }) => {
     return (
-        <div className="w-full bg-white">
-            <div className="w-full bg-white">
+        <div className="w-full bg-transparent">
+            <div className="w-full bg-transparent">
                 <div data-section="relacionDientes">
                     <RelacionDientes
                         formData={formData}

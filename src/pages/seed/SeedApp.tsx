@@ -21,6 +21,7 @@ import { Seed2Phase } from '../../core/packages/seed2/Seed2Phase';
 import { useAuthStore } from '@/store/useAuthStore';
 import { toast } from 'sonner';
 import { QRCodeSVG } from 'qrcode.react';
+import { loadDriveSnapshot, isSnapshotFresh } from '../../utils/driveSnapshot';
 
 export default function SeedApp() {
   // Integración de AuthStore y derivación de ID de clínica único
@@ -76,6 +77,10 @@ export default function SeedApp() {
     }));
   }, [activePatient]);
 
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent('dex:expedienteState', { detail: { isOpen: isExpedienteOpen } }));
+  }, [isExpedienteOpen]);
+
   // ── Escuchar eventos de DEX para abrir vistas ──────────────────────────
   useEffect(() => {
     const handleDexOpenAddPatient = () => {
@@ -125,10 +130,38 @@ export default function SeedApp() {
         setDoctorProfile(parsed);
         setHasCompletedOnboarding(true);
       } catch (e) {
-        console.error("Error al cargar perfil local:", e);
+        console.error('Error al cargar perfil local:', e);
       }
     }
   }, []);
+
+  /**
+   * Precarga del snapshot de Drive al iniciar la app.
+   * Se dispara en background en cuanto Drive está conectado.
+   * No bloquea la UI — los datos quedan listos en localStorage
+   * para que el carrusel y las fichas abran instantáneamente.
+   */
+  useEffect(() => {
+    if (!hasDriveConnected) return;
+    if (isSnapshotFresh()) return; // El snapshot ya está fresco, no recargar
+
+    const preloadSnapshot = async () => {
+      try {
+        const seedUserStr = sessionStorage.getItem('seed_user');
+        if (!seedUserStr) return;
+        const seedUser = JSON.parse(seedUserStr);
+        const token = seedUser?.googleAccessToken;
+        if (!token) return;
+        console.log('[DentaxyApp] Precargando snapshot de Drive en background...');
+        await loadDriveSnapshot(token);
+        console.log('[DentaxyApp] Snapshot listo en localStorage.');
+      } catch (err) {
+        console.warn('[DentaxyApp] No se pudo precargar el snapshot:', err);
+      }
+    };
+
+    preloadSnapshot();
+  }, [hasDriveConnected]);
 
   useEffect(() => {
     const handlePatientLinked = (e: Event) => {
@@ -1114,6 +1147,8 @@ export default function SeedApp() {
         {isExpedienteOpen && selectedExpedienteFolder && (
           <SeedExpedienteInterface 
             folder={selectedExpedienteFolder}
+            patientsList={patientsList}
+            onSelectPatient={(patient) => setSelectedExpedienteFolder(patient)}
             onClose={() => setIsExpedienteOpen(false)}
           />
         )}

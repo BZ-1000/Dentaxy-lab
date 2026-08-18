@@ -10,9 +10,10 @@ interface SeedTopNavProps {
   toggleTheme?: () => void;
   onOpenProfileCredential?: () => void;
   doctorProfile?: any;
+  transparentBg?: boolean;
 }
 
-export default function SeedTopNav({ theme = 'dark', toggleTheme, onOpenProfileCredential, doctorProfile }: SeedTopNavProps) {
+export default function SeedTopNav({ theme = 'dark', toggleTheme, onOpenProfileCredential, doctorProfile, transparentBg = false }: SeedTopNavProps) {
   const navigate = useNavigate();
   const doctor = useAuthStore(state => state.doctor);
   const logout = useAuthStore(state => state.logout);
@@ -62,7 +63,7 @@ export default function SeedTopNav({ theme = 'dark', toggleTheme, onOpenProfileC
     };
   }, []);
   return (
-    <nav className="w-full h-20 px-6 flex items-center justify-between relative z-30">
+    <nav className="w-full h-20 px-6 flex items-center justify-between relative z-30" style={transparentBg ? { background: 'transparent', backdropFilter: 'none', WebkitBackdropFilter: 'none', boxShadow: 'none', borderBottom: 'none' } : {}}>
       
       {/* ── Izquierda: Logo y Buscador ── */}
       <div className="flex items-center gap-4">

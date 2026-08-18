@@ -15,8 +15,8 @@ export const FrenillosCard: React.FC<FrenillosCardProps> = ({
     onToggleViewMode,
 }) => {
     return (
-        <div className="w-full bg-white">
-            <div className="w-full bg-white">
+        <div className="w-full bg-transparent">
+            <div className="w-full bg-transparent">
                 <div data-section="frenillos">
                     <Frenillos
                         formData={formData}

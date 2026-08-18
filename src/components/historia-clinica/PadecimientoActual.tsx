@@ -125,16 +125,23 @@ const PadecimientoActual = ({
   const [currentMicroStep, setCurrentMicroStep] = useState(0);
   const [dir, setDir] = useState(1);
   const [tieneAlivio, setTieneAlivio] = useState<boolean | null>(null);
+  const [showToothPicker, setShowToothPicker] = useState(false);
 
   const motivoValue = formData.padecimientoActual.motivoConsulta;
 
-  // Sync tieneAlivio with d.atenuacion when entering step 7
+  // Al entrar al step 7, resetear tieneAlivio SOLO si no hay valor de atenuación guardado.
+  // NUNCA auto-establecer tieneAlivio=true desde un useEffect — solo el clic del usuario debe hacerlo.
   useEffect(() => {
     if (currentMicroStep === 7) {
-      if (formData.padecimientoActual.dolor.atenuacion) {
-        setTieneAlivio(true);
-      } else {
+      // Si llegamos al step 7 y tieneAlivio está en null (estado inicial), lo dejamos en null
+      // para que el usuario vea la pregunta. Solo si el usuario ya eligió antes y hay texto, lo mantenemos.
+      const hayAtenuacionGuardada = !!(formData.padecimientoActual.dolor.atenuacion?.trim());
+      if (!hayAtenuacionGuardada) {
         setTieneAlivio(null);
+      }
+      // Si hay texto guardado y tieneAlivio aún no está confirmado, lo inferimos
+      if (hayAtenuacionGuardada && tieneAlivio === null) {
+        setTieneAlivio(true);
       }
     }
   }, [currentMicroStep]);
@@ -273,6 +280,7 @@ const PadecimientoActual = ({
       }
     }
 
+    setShowToothPicker(false);
     const currentIndex = seq.indexOf(currentMicroStep);
     if (currentIndex < seq.length - 1) {
       setDir(1);
@@ -283,6 +291,7 @@ const PadecimientoActual = ({
   };
 
   const handlePrev = () => {
+    setShowToothPicker(false);
     const currentIndex = seq.indexOf(currentMicroStep);
     if (currentIndex > 0) {
       setDir(-1);
@@ -427,6 +436,21 @@ const PadecimientoActual = ({
                 onChange={(val) => {
                   handleDolorChange("causaProvocado", val.startsWith(defaultCausaProvocado) ? val : defaultCausaProvocado + val);
                 }}
+                protectedPrefix={defaultCausaProvocado}
+                contextSuggestions={[
+                  "frío",
+                  "calor",
+                  "dulce",
+                  "ácido",
+                  "masticar",
+                  "presión",
+                  "aire frío",
+                  "líquidos fríos",
+                  "alimentos calientes",
+                  "cambios de temperatura",
+                  "cepillado dental",
+                  "estímulos térmicos"
+                ]}
               />
             </div>
           </div>
@@ -530,8 +554,66 @@ const PadecimientoActual = ({
                 onChange={(val) => {
                   const finalVal = val.startsWith(defaultLocalizacion) ? val : defaultLocalizacion + val;
                   handleDolorChange("localizacion", { ...d.localizacion, descripcion: finalVal });
+                  setShowToothPicker(false);
                 }}
+                protectedPrefix={defaultLocalizacion}
+                contextSuggestions={[
+                  "la región premolar superior derecha",
+                  "el sector anterior inferior",
+                  "el primer molar inferior izquierdo",
+                  "la zona mandibular posterior",
+                  "los dientes posteriores superiores",
+                  "la región del tercer molar",
+                  "el hemicuadrante maxilar derecho",
+                  "la arcada inferior",
+                  "la mucosa gingival vestibular"
+                ]}
               />
+            </div>
+
+            {/* Botón selector de órgano dental por número FDI */}
+            <div className="mt-1 px-2">
+              <button
+                type="button"
+                onClick={() => setShowToothPicker(prev => !prev)}
+                className={cn(
+                  "text-sm font-semibold px-5 py-2.5 rounded-full border transition-all duration-300 hover:scale-105 shadow-sm",
+                  showToothPicker
+                    ? "bg-zinc-900 text-white border-transparent dark:bg-white dark:text-zinc-900"
+                    : "bg-emerald-50/80 border-emerald-200 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-900/40 dark:border-emerald-800 dark:text-emerald-200"
+                )}
+              >
+                🦷 Seleccionar por número de diente
+              </button>
+
+              {showToothPicker && (
+                <div className="mt-4 animate-in fade-in duration-300">
+                  <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-3 ml-1">Notación FDI — selecciona el órgano dental:</p>
+
+                  {/* Cuadrante Superior Derecho: 11-18 */}
+                  {[{label: "Superior Der.", teeth: [18,17,16,15,14,13,12,11]}, {label: "Superior Izq.", teeth: [21,22,23,24,25,26,27,28]}, {label: "Inferior Izq.", teeth: [31,32,33,34,35,36,37,38]}, {label: "Inferior Der.", teeth: [41,42,43,44,45,46,47,48]}].map(quad => (
+                    <div key={quad.label} className="mb-3">
+                      <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1.5 ml-1">{quad.label}</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {quad.teeth.map(num => (
+                          <button
+                            key={num}
+                            type="button"
+                            onClick={() => {
+                              const newDesc = defaultLocalizacion + `el órgano dental ${num}`;
+                              handleDolorChange("localizacion", { ...d.localizacion, descripcion: newDesc });
+                              setShowToothPicker(false);
+                            }}
+                            className="w-10 h-10 rounded-xl border text-sm font-bold transition-all duration-200 hover:scale-110 bg-white/80 border-zinc-200 text-zinc-800 hover:bg-emerald-50 hover:border-emerald-400 hover:text-emerald-700 dark:bg-zinc-800/60 dark:border-white/10 dark:text-zinc-200 shadow-sm"
+                          >
+                            {num}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         );
@@ -583,6 +665,20 @@ const PadecimientoActual = ({
                 value={d.atenuacion}
                 onChange={(val) => handleDolorChange("atenuacion", val)}
                 placeholder="Ej. analgésicos, compresas frías..."
+                contextSuggestions={[
+                  "ibuprofeno 400 mg",
+                  "paracetamol 500 mg",
+                  "naproxeno",
+                  "ketorolaco",
+                  "compresas frías",
+                  "compresas calientes",
+                  "el reposo",
+                  "no masticar de ese lado",
+                  "enjuagues con agua sal",
+                  "clonixinato de lisina",
+                  "dexametasona",
+                  "evitar alimentos fríos o calientes"
+                ]}
               />
             </div>
             <button
@@ -603,12 +699,12 @@ const PadecimientoActual = ({
   };
 
   return (
-    <div className="relative w-full max-w-2xl mx-auto pb-8 pt-4">
+    <div className="relative w-full max-w-2xl mx-auto pb-6 pt-0 -mt-2 sm:-mt-4">
       {/* Main Glassmorphic Container */}
-      <div className="relative bg-white/80 dark:bg-zinc-900/40 backdrop-blur-xl border border-white/60 dark:border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.04)] dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.2)] rounded-[2.5rem] p-6 sm:p-10 flex flex-col justify-between">
+      <div className="relative bg-white/80 dark:bg-zinc-900/40 backdrop-blur-xl border border-white/60 dark:border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.04)] dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.2)] rounded-[2.5rem] p-5 sm:p-8 flex flex-col justify-between">
         
         {/* Micro Step Indicator */}
-        <div className="flex justify-center gap-2 mb-10">
+        <div className="flex justify-center gap-2 mb-6">
           {seq.map((step) => {
             const isActive = step === currentMicroStep;
             const isPast = seq.indexOf(step) < seq.indexOf(currentMicroStep);
@@ -643,7 +739,7 @@ const PadecimientoActual = ({
         </div>
 
         {/* Bottom Navigation */}
-        <div className="flex justify-between items-center pt-10 mt-10 z-10">
+        <div className="flex justify-between items-center pt-6 mt-6 z-10">
           <div>
             {seq.indexOf(currentMicroStep) > 0 && (
               <button

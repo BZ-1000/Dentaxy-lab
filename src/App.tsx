@@ -96,6 +96,10 @@ import SeedLogin from './pages/seed/SeedLogin';
 import SeedApp from './pages/seed/SeedApp';
 import { Seed2Phase } from './core/packages/seed2/Seed2Phase';
 
+// Dentaxy Academy
+import AcademyLanding from './pages/academy/AcademyLanding';
+import AcademyApp from './pages/academy/AcademyApp';
+
 // Dentaxy Ecosistema (páginas de cada producto)
 import LabPage from './pages/ecosystem/LabPage';
 import ClubPage from './pages/ecosystem/ClubPage';
@@ -228,6 +232,10 @@ function App() {
                   <Route path="/seed/app" element={<SeedApp />} />
                   <Route path="/seed/new" element={<Seed2Phase />} />
 
+                  {/* Dentaxy Academy */}
+                  <Route path="/academy" element={<AcademyLanding />} />
+                  <Route path="/academy/app" element={<AcademyApp />} />
+
                   {/* Dentaxy Ecosistema — Páginas de cada producto */}
                   <Route path="/lab" element={<LabPage />} />
                   <Route path="/club" element={<ClubPage />} />
@@ -236,8 +244,9 @@ function App() {
                   <Route path="/space" element={<SpacePage />} />
                   <Route path="/mylana" element={<MyLanaPage />} />
 
-                  {/* App - Acceso libre */}
+                  {/* App - Acceso libre y Portal de Paciente */}
                   <Route path="/app" element={<Index />} />
+                  <Route path="/paciente/evaluacion" element={<PatientIntakeView />} />
                   <Route path="/paciente/:sessionId" element={<PatientIntakeView />} />
                   <Route path="/x/:clinicId" element={<PatientIntakeView />} />
 

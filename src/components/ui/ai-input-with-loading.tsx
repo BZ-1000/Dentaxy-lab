@@ -18,6 +18,10 @@ interface AIInputWithLoadingProps {
     autoFocus?: boolean;
     starterPhrases?: string[];
     suggestions?: string[];
+    /** Prefijo protegido: no se puede borrar más allá de este texto */
+    protectedPrefix?: string;
+    /** Sugerencias de completado específicas para el contexto del campo */
+    contextSuggestions?: string[];
 }
 
 export function AIInputWithLoading({
@@ -30,7 +34,9 @@ export function AIInputWithLoading({
     className,
     autoFocus = false,
     starterPhrases = [],
-    suggestions = []
+    suggestions = [],
+    protectedPrefix,
+    contextSuggestions = []
 }: AIInputWithLoadingProps) {
     // Use internal state if value is not provided (uncontrolled mode), otherwise sync with prop
     const [internalValue, setInternalValue] = useState(value || "");
@@ -55,9 +61,26 @@ export function AIInputWithLoading({
 
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         const val = e.target.value;
+        // Proteger el prefijo: si hay un prefijo protegido, no permitir borrar más allá de él
+        if (protectedPrefix && val.length < protectedPrefix.length) {
+            // Restaurar al prefijo mínimo
+            setInternalValue(protectedPrefix);
+            adjustHeight();
+            onChange?.(protectedPrefix);
+            return;
+        }
         setInternalValue(val);
         adjustHeight();
         onChange?.(val);
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (!protectedPrefix) return;
+        const currentVal = typeof internalValue === 'string' ? internalValue : '';
+        // Bloquear Backspace cuando el texto es exactamente el prefijo
+        if ((e.key === 'Backspace' || e.key === 'Delete') && currentVal.length <= protectedPrefix.length) {
+            e.preventDefault();
+        }
     };
 
     // --- Voice Logic Simplification ---
@@ -199,10 +222,15 @@ export function AIInputWithLoading({
         let newValue = suggestionText;
 
         const valStr = typeof internalValue === "string" ? internalValue : "";
-        // Si ya hay un inicio de frase elegido, lo combinamos de forma natural
-        const activeStarter = starterPhrases.find(p => valStr.startsWith(p));
-        if (activeStarter) {
-            newValue = activeStarter + suggestionText;
+        // Si hay un prefijo protegido activo, combinar prefijo + sugerencia
+        if (protectedPrefix) {
+            newValue = protectedPrefix + suggestionText;
+        } else {
+            // Si ya hay un inicio de frase elegido, lo combinamos de forma natural
+            const activeStarter = starterPhrases.find(p => valStr.startsWith(p));
+            if (activeStarter) {
+                newValue = activeStarter + suggestionText;
+            }
         }
 
         setInternalValue(newValue);
@@ -212,9 +240,14 @@ export function AIInputWithLoading({
         }
     };
 
-    const activeSuggestions = getFilteredSuggestions(valStr);
+    // Si hay contextSuggestions específicas, usarlas en lugar de la base de datos genérica
+    const activeSuggestions = contextSuggestions.length > 0 ? contextSuggestions : getFilteredSuggestions(valStr);
     const showStarters = (valStr === "" || starterPhrases.some(p => p.trim() === valStr.trim())) && starterPhrases.length > 0;
-    const showSuggestionsList = valStr !== "" && activeSuggestions.length > 0 && !showStarters;
+    // Con contextSuggestions: mostrar siempre (incluso cuando el valor es solo el prefijo)
+    // Sin contextSuggestions: mostrar solo cuando hay texto más allá del prefijo
+    const showContextSuggestionsAlways = contextSuggestions.length > 0;
+    const hasContentBeyondPrefix = protectedPrefix ? valStr.length > protectedPrefix.length : valStr !== "";
+    const showSuggestionsList = !showStarters && activeSuggestions.length > 0 && (showContextSuggestionsAlways || hasContentBeyondPrefix);
 
     return (
         <div className="w-full py-2">
@@ -233,6 +266,7 @@ export function AIInputWithLoading({
                     ref={textareaRef}
                     value={internalValue || ""}
                     onChange={handleChange}
+                    onKeyDown={handleKeyDown}
                     autoFocus={autoFocus}
                 />
 

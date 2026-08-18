@@ -15,8 +15,8 @@ export const LineaMediaCard: React.FC<LineaMediaCardProps> = ({
     onToggleViewMode,
 }) => {
     return (
-        <div className="w-full bg-white">
-            <div className="w-full bg-white">
+        <div className="w-full bg-transparent">
+            <div className="w-full bg-transparent">
                 <div data-section="lineaMedia">
                     <LineaMedia
                         formData={formData}

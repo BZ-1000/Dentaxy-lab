@@ -337,7 +337,20 @@ export function GlobalDexBubble() {
     location.pathname === "/core" ||
     location.pathname.startsWith("/singularity");
   
-  const shouldHide = !isAppRoute;
+  const [isExpedienteOpen, setIsExpedienteOpen] = useState(false);
+
+  useEffect(() => {
+    const handleExpedienteState = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.isOpen !== undefined) {
+        setIsExpedienteOpen(detail.isOpen);
+      }
+    };
+    window.addEventListener('dex:expedienteState', handleExpedienteState);
+    return () => window.removeEventListener('dex:expedienteState', handleExpedienteState);
+  }, []);
+
+  const shouldHide = !isAppRoute || isExpedienteOpen;
 
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [chatInput, setChatInput] = useState("");

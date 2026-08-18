@@ -15,8 +15,8 @@ export const AlergicosCard: React.FC<AlergicosCardProps> = ({
     onToggleViewMode,
 }) => {
     return (
-        <div className="w-full bg-white">
-            <div className="w-full bg-white">
+        <div className="w-full bg-transparent">
+            <div className="w-full bg-transparent">
                 <div data-section="alergicos">
                     <AntecedentesAlergicos
                         formData={formData}

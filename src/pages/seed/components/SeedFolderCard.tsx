@@ -141,18 +141,67 @@ export default function SeedFolderCard({
             border: '1px solid rgba(0, 0, 0, 0.06)',
           }}
         >
-          <div className="w-full h-full flex flex-col justify-between opacity-10 pointer-events-none select-none">
-            <div className="space-y-3">
-              <div className="w-16 h-3 bg-emerald-500 rounded-md"></div>
-              <div className="space-y-2">
-                <div className="w-full h-1.5 bg-slate-300 rounded-sm"></div>
-                <div className="w-[90%] h-1.5 bg-slate-300 rounded-sm"></div>
-                <div className="w-[95%] h-1.5 bg-slate-300 rounded-sm"></div>
-                <div className="w-[85%] h-1.5 bg-slate-300 rounded-sm"></div>
-                <div className="w-[88%] h-1.5 bg-slate-300 rounded-sm"></div>
+          <div className="w-full h-full flex flex-col justify-between text-left p-1 select-none pointer-events-none">
+            {/* Header de la Ficha Médica */}
+            <div className="flex items-center justify-between border-b border-slate-200 pb-2 mb-1">
+              <div className="flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 flex items-center justify-center text-[7px] text-white font-bold">✓</div>
+                <span className="text-[10px] font-black tracking-widest text-slate-700 uppercase font-mono">DENTAXY SEED • FICHA CLÍNICA</span>
+              </div>
+              <span className="text-[9px] font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                #{shortId ? shortId.toUpperCase() : 'DX-001'}
+              </span>
+            </div>
+
+            {/* Datos del Paciente */}
+            <div className="flex-1 flex flex-col justify-center space-y-2 py-1">
+              <div>
+                <span className="text-[8px] text-slate-400 uppercase font-mono font-bold block">PACIENTE</span>
+                <span className="text-[15px] font-extrabold text-slate-900 tracking-tight leading-snug">{name}</span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-[10px]">
+                <div className="bg-slate-50 p-2 rounded-lg border border-slate-200/80">
+                  <span className="text-[8px] text-slate-400 block uppercase font-mono font-bold">MOTIVO</span>
+                  <span className="font-semibold text-slate-800 truncate block">{translatedMotivo}</span>
+                </div>
+                <div className="bg-slate-50 p-2 rounded-lg border border-slate-200/80">
+                  <span className="text-[8px] text-slate-400 block uppercase font-mono font-bold">TELÉFONO</span>
+                  <span className="font-semibold text-slate-800 truncate block">{phone}</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-[10px]">
+                <div className="bg-slate-50 p-2 rounded-lg border border-slate-200/80">
+                  <span className="text-[8px] text-slate-400 block uppercase font-mono font-bold">ODONTOGRAMA</span>
+                  <span className="font-semibold text-slate-800 truncate block">{odontogramaValue}</span>
+                </div>
+                <div className="bg-slate-50 p-2 rounded-lg border border-slate-200/80">
+                  <span className="text-[8px] text-slate-400 block uppercase font-mono font-bold">FASE DE SALUD</span>
+                  <span className="font-semibold text-slate-800 truncate block">{faseValue}</span>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between text-[9.5px] pt-0.5">
+                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-bold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                  {statusValue}
+                </span>
+                <span className={`px-2 py-0.5 rounded-full font-bold text-[9px] ${
+                  hasAllergies
+                    ? 'bg-amber-100 text-amber-800 border border-amber-300'
+                    : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                }`}>
+                  {hasAllergies ? `⚠️ ${allergies}` : '✓ Sin Alergias'}
+                </span>
               </div>
             </div>
-            <div className="w-full h-1.5 bg-slate-200 rounded-sm"></div>
+
+            {/* Footer */}
+            <div className="border-t border-slate-200 pt-1.5 flex items-center justify-between text-[8.5px] text-slate-400 font-mono">
+              <span>REGISTRADO: {date}</span>
+              <span className="text-emerald-600 font-bold">HISTORIA CLÍNICA DENTAXY</span>
+            </div>
           </div>
         </div>
 

@@ -15,8 +15,8 @@ export const IntrabucalCard: React.FC<IntrabucalCardProps> = ({
     onToggleViewMode,
 }) => {
     return (
-        <div className="w-full bg-white">
-            <div className="w-full bg-white">
+        <div className="w-full bg-transparent">
+            <div className="w-full bg-transparent">
                 <div data-section="intrabucal">
                     <ExamenIntrabucal
                         formData={formData}

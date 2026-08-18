@@ -48,7 +48,7 @@ export const ProgressLine: React.FC<ProgressLineProps> = ({
                 {/* The Track Container - Always Centered Vertically */}
                 <div
                     className="relative flex items-center justify-center transition-transform will-change-transform"
-                    style={{ width: TOTAL_WIDTH, height: 32 }}
+                    style={{ width: TOTAL_WIDTH, height: 56 }}
                 >
 
                     {/* 1. Gray Track Line */}
@@ -63,28 +63,48 @@ export const ProgressLine: React.FC<ProgressLineProps> = ({
                         transition={heightTransition}
                     />
 
-                    {/* 2. The Active Green Pill */}
-                    <motion.div
-                        className="absolute left-0 top-1/2 -translate-y-1/2 bg-emerald-500 z-10 shadow-lg shadow-emerald-500/30 rounded-full overflow-hidden will-change-[height,width]"
-                        initial={{ width: 0 }}
-                        animate={{
-                            width: ((currentStep + 1) * ITEM_WIDTH) + (currentStep * GAP_WIDTH) + 16,
-                            height: isScrolled ? 4 : 32
-                        }}
-                        transition={heightTransition}
-                    >
-                        {/* Shimmer Effect */}
-                        {isGenerating && (
+                                                                            {/* 1.5 Breathing Organic Glow Aura (Sin cortes horizontales) */}
                             <motion.div
-                                className="absolute inset-0 bg-white/30 skew-x-12"
-                                initial={{ x: '-100%' }}
-                                animate={{ x: '200%' }}
-                                transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                                className="absolute left-0 top-1/2 -translate-y-1/2 bg-emerald-400/50 dark:bg-emerald-400/40 blur-md rounded-full pointer-events-none z-0"
+                                initial={{ width: 0 }}
+                                animate={{
+                                    width: ((currentStep + 1) * ITEM_WIDTH) + (currentStep * GAP_WIDTH) + 20,
+                                    height: isScrolled ? 10 : 34,
+                                    opacity: isGenerating ? [0.4, 0.9, 0.4] : 0.7
+                                }}
+                                transition={{
+                                    height: heightTransition,
+                                    width: { type: "spring", stiffness: 150, damping: 14 },
+                                    opacity: isGenerating ? { repeat: Infinity, duration: 2, ease: "easeInOut" } : { duration: 0.3 }
+                                }}
+                                style={{ transform: 'translate(-2px, -50%)' }}
                             />
-                        )}
-                    </motion.div>
 
-                    {/* 3. The Steps/Numbers (Fade out on scroll) */}
+                            {/* 2. The Active Green Pill */}
+                            <motion.div
+                                className="absolute left-0 top-1/2 -translate-y-1/2 bg-emerald-500 z-10 shadow-[0_2px_14px_rgba(16,185,129,0.45)] rounded-full overflow-hidden will-change-[height,width]"
+                                initial={{ width: 0 }}
+                                animate={{
+                                    width: ((currentStep + 1) * ITEM_WIDTH) + (currentStep * GAP_WIDTH) + 16,
+                                    height: isScrolled ? 4 : 32
+                                }}
+                                transition={{
+                                    height: heightTransition,
+                                    width: { type: "spring", stiffness: 150, damping: 14 }
+                                }}
+                            >
+                                {/* Shimmer Effect */}
+                                {isGenerating && (
+                                    <motion.div
+                                        className="absolute inset-0 bg-white/30 skew-x-12"
+                                        initial={{ x: '-100%' }}
+                                        animate={{ x: '200%' }}
+                                        transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                                    />
+                                )}
+                            </motion.div>
+
+                            {/* 3. The Steps/Numbers (Fade out on scroll) */}
                     <motion.div
                         className="flex gap-2 items-center relative z-20 will-change-opacity"
                         animate={{

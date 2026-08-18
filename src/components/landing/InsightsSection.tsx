@@ -5,7 +5,7 @@ import { motion, useMotionValue } from "framer-motion";
 import { AppleTypewriter } from "@/components/ui/AppleTypewriter";
 import { chatWithAgent } from "@/services/gemini";
 
-export const InsightsSection = () => {
+export const InsightsSection = ({ mainRef }: { mainRef?: React.RefObject<HTMLDivElement> } = {}) => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
@@ -370,7 +370,7 @@ export const InsightsSection = () => {
       {!isStep4 && (
         <motion.div
           id="dentaxy-ai-orb"
-          layoutId="dentaxy-ai-orb-shared"
+          layoutId="dentaxy-landing-orb-shared"
           style={{
             position: "fixed",
             left: orbLeft,
@@ -397,7 +397,7 @@ export const InsightsSection = () => {
       {/* ── Barra de Chat Estilo ChatGPT (Paso 4) ── */}
       {isStep4 && (
         <motion.div
-          layoutId="dentaxy-ai-orb-parent"
+          layoutId="dentaxy-landing-orb-parent"
           initial={false}
           animate={{
             width: isChatOpen ? (isPortrait ? "calc(100% - 32px)" : 480) : 96,
@@ -424,7 +424,7 @@ export const InsightsSection = () => {
         >
           {/* Orbe de DEX en la izquierda de la barra de chat */}
           <motion.div
-            layoutId="dentaxy-ai-orb-shared"
+            layoutId="dentaxy-landing-orb-shared"
             onClick={(e) => {
               if (isChatOpen) {
                 e.stopPropagation();

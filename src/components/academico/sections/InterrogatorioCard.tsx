@@ -15,8 +15,8 @@ export const InterrogatorioCard: React.FC<InterrogatorioCardProps> = ({
     onToggleViewMode,
 }) => {
     return (
-        <div className="w-full bg-white">
-            <div className="w-full bg-white">
+        <div className="w-full bg-transparent">
+            <div className="w-full bg-transparent">
                 <div data-section="interrogatorio">
                     <InterrogatorioSistemas
                         formData={formData}

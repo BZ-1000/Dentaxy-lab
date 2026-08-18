@@ -1,5 +1,26 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
+/* ─── Micro-animaciones de la interfaz ──────────────────────────────────── */
+
+/* Nombre de paciente: sube desde abajo con fade — se activa con key prop */
+@keyframes seedNameSlideIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
+/* Header en modo pregunta: fade rápido */
+@keyframes seedFadeSlideIn {
+  from { opacity: 0; transform: translateY(3px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
+/* Entrada de tarjetas y filas de la interfaz */
+@keyframes seedRowIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
+
 :root {
   --seed-bg: #09090b; /* Fondo oscuro principal */
   --seed-bg-gradient: linear-gradient(135deg, #09090b 0%, #0c0c0f 100%);
@@ -202,10 +223,9 @@
   box-shadow: 0 0 24px var(--seed-green-glow);
 }
 
-/* SOMBRAS ADAPTABLES COMPLIANCE CARD */
+/* SOMBRAS ADAPTABLES COMPLIANCE CARD — sin transition en filter (costoso) */
 .seed-compliance-card {
   filter: drop-shadow(0 15px 25px rgba(0, 245, 160, 0.22)) drop-shadow(0 5px 10px rgba(0, 245, 160, 0.15));
-  transition: filter 0.4s ease;
 }
 .light-theme .seed-compliance-card {
   filter: drop-shadow(0 15px 25px rgba(15, 23, 42, 0.1)) drop-shadow(0 5px 10px rgba(15, 23, 42, 0.06));
@@ -305,19 +325,20 @@
   transition: background-color 0.4s ease, box-shadow 0.4s ease;
 }
 
+/* CARPETA CENTRAL ACTIVA — solo transform y opacity en transition */
 .seed-carousel-active {
   background: transparent;
   filter: drop-shadow(0 15px 25px rgba(0, 245, 160, 0.22)) drop-shadow(0 5px 10px rgba(0, 245, 160, 0.15));
-  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  /* ⚡ sin transition aquí — se maneja en los hijos con transform */
   position: relative;
 }
 
+/* PILAS LATERALES — transition sólo en transform; will-change sólo al hover */
 .seed-folder-stack-item {
   background: transparent;
   filter: drop-shadow(0 28px 25px rgba(0, 245, 160, 0.2)) drop-shadow(0 32px 40px rgba(0, 245, 160, 0.12));
-  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
   position: relative;
-  will-change: transform, opacity;
+  /* ⚡ sin will-change permanente — sólo al hover (ver abajo) */
 }
 
 .light-theme .seed-carousel-active,
@@ -366,14 +387,26 @@
   transform-style: preserve-3d;
 }
 
+/* Hoja de papel — entra primero, sensación de peso físico */
 .seed-folder-paper {
   transform-origin: bottom center;
-  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.4s ease;
+  transition: transform 0.28s cubic-bezier(0.25, 1, 0.5, 1);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
+/* Solapa delantera — sigue a la hoja con 40ms de desfase natural */
 .seed-folder-front {
   transform-origin: bottom center;
-  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.4s ease;
+  transition: transform 0.32s cubic-bezier(0.25, 1, 0.5, 1) 0.04s;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* will-change SÓLO mientras el hover está activo */
+.seed-carousel-active.group:hover .seed-folder-paper,
+.seed-carousel-active.group:hover .seed-folder-front {
+  will-change: transform;
 }
 
 /* Lomo físico de la carpeta para dar volumen (spine) */
@@ -382,7 +415,7 @@
   bottom: 0;
   left: 0;
   right: 0;
-  height: 24px; /* Grosor de la carpeta */
+  height: 24px;
   background: var(--seed-white-glass-bg);
   transform-origin: bottom;
   transform: rotateX(-90deg) translateY(24px);
@@ -392,36 +425,28 @@
   pointer-events: none;
 }
 
-/* Carpeta Central (Carrusel) Apertura Interactiva */
+/* ⚡ Carpeta Central — solo transform (compositor-only, cero repaint) */
 .seed-carousel-active.group:hover .seed-folder-paper {
-  transform: translate3d(0, -12px, 12px) rotateX(-18deg) !important;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.12) !important;
+  transform: translate3d(0, -56px, 16px) rotateX(-4deg) !important;
 }
 
 .seed-carousel-active.group:hover .seed-folder-front {
-  transform: translate3d(0, 2px, 24px) rotateX(-36deg) !important;
-  box-shadow: 0 35px 50px -10px rgba(0,0,0,0.35), inset 0 2px 6px rgba(255,255,255,0.4) !important;
+  transform: translate3d(0, 6px, 24px) rotateX(-22deg) !important;
 }
 
-.light-theme .seed-carousel-active.group:hover .seed-folder-front {
-  box-shadow: 0 35px 50px -10px rgba(15,23,42,0.18), inset 0 2px 6px rgba(255,255,255,0.8) !important;
-}
-
-/* Animación unificada en bloque para carpetas de la pila lateral (delantera, papel y trasera se mueven como un solo bloque sólido) */
+/* Bloque lateral — 260ms, curva suave de deslizamiento */
 .seed-folder-block {
   transform-origin: bottom center;
-  transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.26s cubic-bezier(0.25, 1, 0.5, 1);
   transform: rotateZ(0) translate3d(0, 0, 0);
-  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
-/* Pila Izquierda: inclina todo el bloque 3D (antihorario en Z, hacia abajo y adentro) */
-.seed-stack-left:hover .seed-folder-block {
-  transform: rotateZ(-6deg) translate3d(0, 6px, -10px);
-}
-
-/* Pila Derecha: inclina todo el bloque 3D (antihorario en Z, hacia abajo y adentro) */
+/* will-change solo cuando el hover está activo */
+.seed-stack-left:hover .seed-folder-block,
 .seed-stack-right:hover .seed-folder-block {
+  will-change: transform;
   transform: rotateZ(-6deg) translate3d(0, 6px, -10px);
 }
 

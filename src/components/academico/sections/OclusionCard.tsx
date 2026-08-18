@@ -15,8 +15,8 @@ export const OclusionCard: React.FC<OclusionCardProps> = ({
     onToggleViewMode,
 }) => {
     return (
-        <div className="w-full bg-white">
-            <div className="w-full bg-white">
+        <div className="w-full bg-transparent">
+            <div className="w-full bg-transparent">
                 <div data-section="oclusion">
                     <Oclusion
                         formData={formData}

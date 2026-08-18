@@ -49,6 +49,8 @@ interface DentaxyFormPanelProps {
   onGeneracionIniciada?: (seccionId: string) => void;
   onGeneratingChange?: (generating: boolean) => void;
   disableProgressLineAnimation?: boolean;
+  transparentBg?: boolean;
+  onSectionTitleChange?: (title: string, step: number, total: number) => void;
 }
 
 const variants = {
@@ -71,7 +73,9 @@ const variants = {
 export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
   onSeccionGenerada,
   onGeneratingChange,
-  disableProgressLineAnimation = false
+  disableProgressLineAnimation = false,
+  transparentBg = false,
+  onSectionTitleChange,
 }) => {
 
   const seccionesGenerables = [
@@ -208,6 +212,15 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
     if (onGeneratingChange) onGeneratingChange(isGenerating);
   }, [isGenerating, onGeneratingChange]);
 
+  // Notificar al padre el título de la sección activa cada vez que cambia
+  React.useEffect(() => {
+    if (onSectionTitleChange && currentSectionInfo) {
+      const cleanTitle = currentSectionInfo.nombre.replace(/^\d+\.\s*/, '');
+      onSectionTitleChange(cleanTitle, currentStep + 1, seccionesActivas.length);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStep]);
+
   const handleNext = () => {
     if (currentStep < seccionesActivas.length - 1) {
       setDirection(1);
@@ -244,6 +257,7 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
         return <DatosGeneralesCard
           formData={formData}
           handleDatosGeneralesChange={handleDatosGeneralesChange}
+          onNextStep={handleNext}
           {...commonProps}
         />;
       case 'padecimiento':
@@ -411,7 +425,10 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
   };
 
   return (
-    <div className="flex w-full h-full bg-white dark:bg-zinc-950 overflow-hidden relative">
+    <div className={cn(
+      "flex w-full h-full overflow-hidden relative pt-3 md:pt-4 pl-3 md:pl-4 pr-3 md:pr-4 pb-0 md:pb-0 gap-3 md:gap-4",
+      transparentBg ? "bg-transparent" : "bg-zinc-50/50 dark:bg-zinc-950/50"
+    )}>
 
       {/* Left Panel: Form View */}
       <motion.div 
@@ -420,7 +437,7 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
           width: (isDocumentOpen && !isMobile) ? (isDocumentExpanded ? "0%" : `${100 - docWidth}%`) : "100%",
           opacity: (isDocumentOpen && !isMobile && isDocumentExpanded) ? 0 : 1 
         }}
-        transition={isDraggingSplit ? { duration: 0 } : { type: 'spring', stiffness: 350, damping: 30 }}
+        transition={{ type: 'spring', stiffness: 350, damping: 30 }}
         className={cn(
           "flex flex-col relative h-full shrink-0 will-change-[width]", /* CLAVE: quitamos overflow-hidden para que position:sticky del ProgressLine funcione */
           isDocumentOpen && isMobile && "hidden"
@@ -445,7 +462,8 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
           onScroll={handleScroll}
           className="flex-1 overflow-y-auto overflow-x-hidden pb-40 scroll-smooth dentaxy-scrollbar"
         >
-          <div className="container mx-auto px-4 py-4 max-w-4xl">
+          <div className="container mx-auto px-4 pt-1 pb-4 max-w-4xl">
+
             <AnimatePresence mode="wait" custom={direction}>
               <motion.div
                 key={currentStep}
@@ -460,10 +478,10 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
                 }}
                 className="w-full flex justify-center"
               >
-                {/* 2. Focus Card: Section Container with Progressive Disclosure */}
+                {/* 2. Focus Card: Section Container */}
                 <div className="w-full" data-section={currentSectionInfo.id}>
                   <SectionCard
-                    title={currentSectionInfo.nombre}
+                    title={""}
                     viewMode={viewMode}
                     onViewModeChange={setViewMode}
                     redactionPreview={generations[currentSectionInfo.id]}
@@ -497,39 +515,6 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
           </div>
         )}
       </motion.div>
-
-      {/* Resizable Split Bar (Desktop only, when split view is active) */}
-      {isDocumentOpen && !isMobile && !isDocumentExpanded && (
-        <div
-          className="w-1.5 cursor-col-resize hover:bg-emerald-500/50 active:bg-emerald-500 bg-zinc-100 dark:bg-zinc-800 z-40 h-full relative group transition-colors shadow-sm flex-shrink-0"
-          onMouseDown={(e) => {
-             e.preventDefault();
-             setIsDraggingSplit(true);
-             const startX = e.clientX;
-             const startWidth = docWidth;
-             const onMouseMove = (moveEvent: MouseEvent) => {
-                const deltaX = startX - moveEvent.clientX; // Moving left increases right panel docWidth
-                const totalWidth = window.innerWidth;
-                const newWidth = Math.max(30, Math.min(70, startWidth + (deltaX / totalWidth) * 100));
-                setDocWidth(newWidth);
-             };
-             const onMouseUp = () => {
-                setIsDraggingSplit(false);
-                document.removeEventListener('mousemove', onMouseMove);
-                document.removeEventListener('mouseup', onMouseUp);
-             };
-             document.addEventListener('mousemove', onMouseMove);
-             document.addEventListener('mouseup', onMouseUp);
-          }}
-        >
-          {/* Grip lines */}
-          <div className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 flex items-center justify-center rounded-sm border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 shadow-sm w-3 h-6 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-            <svg width="6" height="10" viewBox="0 0 6 10" fill="none" className="text-zinc-400">
-              <path d="M1 1.5V8.5M5 1.5V8.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-            </svg>
-          </div>
-        </div>
-      )}
 
       {/* Right Panel: Split Document View */}
       <AnimatePresence>

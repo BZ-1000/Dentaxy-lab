@@ -15,8 +15,8 @@ export const CabezaCard: React.FC<CabezaCardProps> = ({
     onToggleViewMode,
 }) => {
     return (
-        <div className="w-full bg-white">
-            <div className="w-full bg-white">
+        <div className="w-full bg-transparent">
+            <div className="w-full bg-transparent">
                 <div data-section="cabeza">
                     <ExamenCabeza
                         formData={formData}

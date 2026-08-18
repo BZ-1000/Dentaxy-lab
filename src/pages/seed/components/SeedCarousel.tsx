@@ -1,4 +1,10 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
+import {
+  getPatientsFromSnapshot,
+  loadDriveSnapshot,
+  isSnapshotFresh,
+  addPatientToSnapshot,
+} from '../../../utils/driveSnapshot';
 import { ArrowUpRight, FolderOpen, Plus } from 'lucide-react';
 
 interface SeedCarouselProps {
@@ -52,46 +58,46 @@ export default function SeedCarousel({
   
   const [isLoading, setIsLoading] = useState(true);
 
+  /**
+   * Carga pacientes desde el snapshot local (localStorage).
+   * Si el snapshot está vacío o expirado, dispara loadDriveSnapshot() para refrescarlo.
+   * Esto garantiza que el carrusel aparezca en <5ms en la mayoría de los casos.
+   */
   const fetchPatients = useCallback(async () => {
     try {
+      // 1. Intentar leer desde snapshot local (retorno instantáneo)
+      const cachedPatients = getPatientsFromSnapshot();
+      if (cachedPatients && cachedPatients.length > 0 && isSnapshotFresh()) {
+        setPatients(cachedPatients);
+        onPatientsLoadRef.current?.(cachedPatients);
+        setActiveIndex(0);
+        setIsLoading(false);
+        return;
+      }
+
+      // 2. Snapshot vacío o expirado → cargar desde Drive
       const seedUserStr = sessionStorage.getItem('seed_user');
-      if (!seedUserStr) {
-        setIsLoading(false);
-        return;
-      }
+      if (!seedUserStr) { setIsLoading(false); return; }
       const seedUser = JSON.parse(seedUserStr);
-      const accessToken = seedUser.googleAccessToken;
-      if (!accessToken) {
+      const accessToken = seedUser?.googleAccessToken;
+      if (!accessToken) { setIsLoading(false); return; }
+
+      // Si hay datos cacheados aunque estén expirados, mostrarlos mientras se recarga
+      if (cachedPatients && cachedPatients.length > 0) {
+        setPatients(cachedPatients);
+        onPatientsLoadRef.current?.(cachedPatients);
         setIsLoading(false);
-        return;
       }
 
-      const queryRoot = encodeURIComponent("name = 'Dentaxy' and mimeType = 'application/vnd.google-apps.folder' and trashed = false");
-      const resRoot = await fetch(`https://www.googleapis.com/drive/v3/files?q=${queryRoot}&fields=files(id)`, {
-        headers: { Authorization: `Bearer ${accessToken}` }
-      });
-      const dataRoot = await resRoot.json();
-
-      if (!dataRoot.files || dataRoot.files.length === 0) {
-        setIsLoading(false);
-        return;
-      }
-
-      const rootId = dataRoot.files[0].id;
-      const queryPatients = encodeURIComponent(`'${rootId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`);
-      const resPatients = await fetch(`https://www.googleapis.com/drive/v3/files?q=${queryPatients}&fields=files(id,name,createdTime,appProperties)&orderBy=createdTime desc`, {
-        headers: { Authorization: `Bearer ${accessToken}` }
-      });
-      const dataPatients = await resPatients.json();
-
-      if (dataPatients.files) {
-        setPatients(dataPatients.files);
-        onPatientsLoadRef.current?.(dataPatients.files);
-        // Cuando se recargan los pacientes (ej. uno nuevo), volvemos al centro para ver el más reciente
+      // Refrescar snapshot en background
+      const snapshot = await loadDriveSnapshot(accessToken);
+      if (snapshot && snapshot.patients.length > 0) {
+        setPatients(snapshot.patients);
+        onPatientsLoadRef.current?.(snapshot.patients);
         setActiveIndex(0);
       }
     } catch (err) {
-      console.error("Error fetching patients from Drive:", err);
+      console.error('[DentaxyCarousel] Error al cargar pacientes:', err);
     } finally {
       setIsLoading(false);
     }
@@ -115,6 +121,8 @@ export default function SeedCarousel({
           alergias: 'Ninguna'
         }
       };
+      // Persistir en snapshot local para que no desaparezca al reabrir
+      addPatientToSnapshot(newPatient);
       setPatients(prev => {
         const exists = prev.some(p => p.name === name);
         if (exists) return prev;
@@ -289,7 +297,7 @@ export default function SeedCarousel({
                 }
               }}
               id={`folder-${card.id}`}
-              className={`absolute w-[320px] h-[200px] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] cursor-pointer group ${isActive ? 'seed-carousel-active' : ''}`}
+              className={`absolute w-[320px] h-[200px] transition-[transform,opacity] duration-[280ms] ease-out cursor-pointer group ${isActive ? 'seed-carousel-active' : ''}`}
               style={{
                 transform,
                 borderRadius: '24px',
@@ -324,37 +332,101 @@ export default function SeedCarousel({
 
               {/* Capa Papel Interno */}
               <div
-                className="absolute left-[16px] right-[16px] top-[42px] h-[146px] rounded-2xl shadow-md z-10 p-4 flex flex-col items-center justify-center text-center seed-folder-paper"
+                className="absolute left-[16px] right-[16px] top-[42px] h-[148px] rounded-2xl shadow-md z-10 p-3.5 flex flex-col justify-between seed-folder-paper overflow-hidden select-none pointer-events-none"
                 style={{
-                  background: 'linear-gradient(135deg, #ffffff 0%, #f9fafb 100%)',
-                  border: '1px solid rgba(0, 0, 0, 0.06)',
-                  boxShadow: '0 4px 10px rgba(0,0,0,0.06)',
+                  background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                  border: '1px solid rgba(0, 0, 0, 0.08)',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
                   transform: 'translate3d(0, 0, 12px)',
                 }}
               >
                 {isEmptyCard ? (
-                  <div className={`transition-opacity duration-300 ${isActive ? 'opacity-0' : 'opacity-100'}`}>
-                    <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center mb-2 border border-slate-100 shadow-sm mx-auto">
-                      <FolderOpen size={18} className="text-slate-300 animate-bounce" />
+                  <div className="w-full h-full flex flex-col justify-between text-left p-0.5">
+                    {/* Header de Ficha Vacía */}
+                    <div className="flex items-center justify-between border-b border-slate-200/80 pb-1">
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-2 h-2 rounded-full bg-amber-400"></div>
+                        <span className="text-[9px] font-black tracking-[0.15em] text-slate-700 uppercase font-mono">DENTAXY SEED • FICHA CLÍNICA</span>
+                      </div>
+                      <span className="text-[7.5px] font-mono font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                        DISPONIBLE
+                      </span>
                     </div>
-                    <h3 className="text-slate-600 font-semibold text-[13px] tracking-wide">Expediente Vacío</h3>
-                    <p className="text-slate-400 text-[10px] max-w-[180px] mt-0.5">Haz clic aquí para agregar un paciente nuevo</p>
+
+                    {/* Contenido Ficha Vacía */}
+                    <div className="flex-1 flex flex-col justify-center items-center text-center px-2 py-1">
+                      <div className="w-7 h-7 rounded-full bg-emerald-50 flex items-center justify-center border border-emerald-100 mb-1">
+                        <FolderOpen size={14} className="text-emerald-600" />
+                      </div>
+                      <h4 className="text-slate-800 font-extrabold text-[12px] tracking-wide">Expediente Vacío</h4>
+                      <p className="text-slate-500 text-[8.5px] max-w-[200px] leading-tight">
+                        Apertura una nueva historia clínica digital en Google Drive
+                      </p>
+                    </div>
+
+                    {/* Footer Ficha Vacía */}
+                    <div className="border-t border-slate-200/60 pt-1 flex items-center justify-between text-[7.5px] text-emerald-600 font-mono font-bold">
+                      <span>STATUS: PENDIENTE REGISTRO</span>
+                      <span>+ AGREGAR PACIENTE</span>
+                    </div>
                   </div>
                 ) : (
-                  <div className={`flex flex-col items-center w-full max-w-[200px] transition-opacity duration-300 ${isActive ? 'opacity-0' : 'opacity-100'}`}>
-                    <h3 className="text-slate-700 font-bold text-[14px] tracking-wide mb-1 break-words line-clamp-2 leading-tight">
-                      {title}
-                    </h3>
-                    <span className="px-2.5 py-0.5 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-full text-[9px] font-bold tracking-wider mb-3">
-                      {percentage}% COMPLETADO
-                    </span>
-                    
-                    {/* Barra de progreso */}
-                    <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                      <div 
-                        className="bg-emerald-400 h-full rounded-full transition-all duration-1000 ease-out" 
-                        style={{ width: `${percentage}%` }}
-                      ></div>
+                  <div className="w-full h-full flex flex-col justify-between text-left p-0.5">
+                    {/* Header Expediente Paciente */}
+                    <div className="flex items-center justify-between border-b border-slate-200/80 pb-1">
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                        <span className="text-[9px] font-black tracking-[0.15em] text-slate-700 uppercase font-mono">HISTORIA CLÍNICA • DENTAXY</span>
+                      </div>
+                      <span className="text-[7.5px] font-mono font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                        #{card.id ? card.id.substring(0, 6).toUpperCase() : 'DX-2026'}
+                      </span>
+                    </div>
+
+                    {/* Datos del Paciente */}
+                    <div className="flex-1 flex flex-col justify-center space-y-1 my-0.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[12px] font-black text-slate-900 tracking-tight line-clamp-1">
+                          {title}
+                        </span>
+                      </div>
+
+                      {/* Info grid */}
+                      <div className="grid grid-cols-2 gap-1 text-[8.5px]">
+                        <div className="bg-slate-100/70 p-1 rounded border border-slate-200/60">
+                          <span className="text-[7px] text-slate-400 font-bold block uppercase font-mono leading-none mb-0.5">MOTIVO CONSULTA</span>
+                          <span className="font-bold text-slate-800 truncate block leading-tight">
+                            {card.appProperties?.motivo || 'Valoración inicial'}
+                          </span>
+                        </div>
+                        <div className="bg-slate-100/70 p-1 rounded border border-slate-200/60">
+                          <span className="text-[7px] text-slate-400 font-bold block uppercase font-mono leading-none mb-0.5">TELÉFONO</span>
+                          <span className="font-bold text-slate-800 truncate block leading-tight">
+                            {card.appProperties?.telefono || 'Sin registro'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Odontograma & Alergias */}
+                      <div className="flex items-center justify-between text-[8px] pt-0.5">
+                        <span className="inline-flex items-center gap-1 text-slate-700 font-bold">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                          Odontograma Activo
+                        </span>
+                        <span className={`px-1.5 py-0.5 rounded text-[7.5px] font-bold ${
+                          card.appProperties?.alergias && card.appProperties.alergias.toLowerCase() !== 'ninguna'
+                            ? 'bg-amber-100 text-amber-800 border border-amber-300'
+                            : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                        }`}>
+                          {card.appProperties?.alergias && card.appProperties.alergias.toLowerCase() !== 'ninguna' ? '⚠️ Alergias' : 'Sin Alergias'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Footer Expediente */}
+                    <div className="border-t border-slate-200/60 pt-1 flex items-center justify-between text-[7.5px] text-slate-400 font-mono">
+                      <span>REGISTRO: {subTitle.replace('Creado el ', '')}</span>
+                      <span className="text-emerald-600 font-bold">DENTAXY SEED AI</span>
                     </div>
                   </div>
                 )}
@@ -406,7 +478,7 @@ export default function SeedCarousel({
                         {isEmptyCard ? 'AGREGAR' : 'ABRIR'}
                       </span>
                       {isEmptyCard ? (
-                        <div className="w-2 h-2 rounded-full seed-green-dot animate-ping"></div>
+                        <div className="w-2 h-2 rounded-full bg-emerald-300 opacity-90 shadow-[0_0_6px_2px_rgba(52,211,153,0.5)]"></div>
                       ) : (
                         <span className="text-white/80 text-[11px] font-bold bg-white/10 px-2 py-0.5 rounded-full border border-white/20">
                           ID: {card.id.substring(0,4)}

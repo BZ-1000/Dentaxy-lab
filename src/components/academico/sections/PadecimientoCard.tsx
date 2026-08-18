@@ -19,8 +19,8 @@ export const PadecimientoCard: React.FC<PadecimientoCardProps> = ({
     onToggleViewMode,
 }) => {
     return (
-        <div className="w-full bg-white">
-            <div className="w-full bg-white">
+        <div className="w-full bg-transparent">
+            <div className="w-full bg-transparent">
                 <div data-section="padecimiento">
                     <PadecimientoActual
                         formData={formData}

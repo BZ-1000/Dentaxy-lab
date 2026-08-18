@@ -27,6 +27,8 @@ interface SeedChatConsoleProps {
   setIsQuestionMode?: (val: boolean) => void;
   questionType?: 'NEW_PATIENT' | 'INIT_EXPEDIENTE' | null;
   onConfirmQuestion?: (type: 'NEW_PATIENT' | 'INIT_EXPEDIENTE') => void;
+  theme?: 'dark' | 'light';
+  forceWhiteBg?: boolean;
 }
 
 export default function SeedChatConsole({ 
@@ -37,7 +39,9 @@ export default function SeedChatConsole({
   isQuestionMode = false,
   setIsQuestionMode,
   questionType = null,
-  onConfirmQuestion
+  onConfirmQuestion,
+  theme = 'dark',
+  forceWhiteBg = false
 }: SeedChatConsoleProps) {
   const isPatientEmpty = !activePatient || activePatient.id === 999;
   const name = isPatientEmpty ? 'Paciente no seleccionado' : activePatient.name;
@@ -564,11 +568,10 @@ ${barcodeSvg.replace('<svg ', `<svg xmlns="http://www.w3.org/2000/svg" data-pati
   const renderHeader = () => {
     if (isQuestionMode) {
       return (
-        <div className="flex items-center justify-between w-full h-8 px-[18px] pb-1 border-b border-[var(--seed-row-border)]/20 mb-0.5 animate-in fade-in duration-300">
+        <div className="flex items-center justify-between w-full h-8 px-[18px] pb-1 border-b border-[var(--seed-row-border)]/20 mb-0.5" style={{ animation: 'seedFadeSlideIn 0.2s ease-out both' }}>
           <div className="flex items-center gap-2 text-[12px] font-black text-slate-700/90 dark:text-zinc-300 tracking-[0.18em] uppercase font-['Bruno_Ace_SC',_sans-serif]">
             <span>{questionType === 'NEW_PATIENT' ? 'Registrar Nuevo Paciente' : 'Confirmación'}</span>
           </div>
-
           <ChevronDown 
             size={13} 
             className="text-[var(--seed-text-muted)] opacity-60 rotate-180 transition-transform duration-300" 
@@ -579,7 +582,7 @@ ${barcodeSvg.replace('<svg ', `<svg xmlns="http://www.w3.org/2000/svg" data-pati
 
     if (isAnalyzing) {
       return (
-        <div className="flex items-center justify-between w-full h-6 px-[18px] animate-pulse">
+        <div className="flex items-center justify-between w-full h-6 px-[18px]">
           <div className="flex items-center gap-2 text-[9.5px] font-bold text-[var(--seed-text-muted)] tracking-wider uppercase">
             <div className="w-2.5 h-2.5 border-2 border-slate-600/20 border-t-slate-500 rounded-full animate-spin"></div>
             <span>1 análisis en curso</span>
@@ -594,11 +597,19 @@ ${barcodeSvg.replace('<svg ', `<svg xmlns="http://www.w3.org/2000/svg" data-pati
           {!showExpanded && (
             <div className="w-2 h-2 border border-slate-500/40 border-t-slate-500 rounded-full animate-spin"></div>
           )}
-          <span>Resumen de <span className="font-bruno text-[10px] tracking-[0.1em] text-emerald-500">{name}</span></span>
+          <span className="text-[var(--seed-text-muted)]">Resumen de{' '}</span>
+          {/* Nombre con animación keyframe al cambiar de paciente */}
+          <span
+            key={name}
+            className="font-bold text-[10px] tracking-[0.08em] text-slate-600"
+            style={{ animation: 'seedNameSlideIn 0.32s cubic-bezier(0.22,1,0.36,1) both' }}
+          >
+            {name}
+          </span>
         </div>
         <ChevronDown 
           size={13} 
-          className={`text-[var(--seed-text-muted)] opacity-60 transition-transform duration-300 ${
+          className={`text-[var(--seed-text-muted)] opacity-60 transition-transform duration-280 ${
             showExpanded ? 'rotate-180' : ''
           }`} 
         />
@@ -695,21 +706,21 @@ ${barcodeSvg.replace('<svg ', `<svg xmlns="http://www.w3.org/2000/svg" data-pati
     );
   };
 
+  const isWhiteBg = forceWhiteBg || theme === 'light';
+
   return (
     <div 
-      className="w-full flex flex-col justify-between overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] relative border mb-1.5"
+      className="w-full flex flex-col justify-between overflow-hidden relative border mb-1.5"
       style={{
         height: containerHeight,
         borderRadius: containerRadius,
-        background: 'var(--seed-card-bg)',
-        borderColor: 'var(--seed-card-border)',
-        boxShadow: containerShadow,
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
+        background: isWhiteBg ? 'rgba(255, 255, 255, 0.92)' : 'var(--seed-card-bg)',
+        borderColor: isWhiteBg ? 'rgba(226, 232, 240, 0.9)' : 'var(--seed-card-border)',
+        boxShadow: isWhiteBg ? '0 8px 32px rgba(0, 0, 0, 0.08)' : containerShadow,
+        backdropFilter: 'blur(24px)',
+        WebkitBackdropFilter: 'blur(24px)',
         paddingTop: '8px',
-        paddingBottom: '0px',
-        paddingLeft: '0px',
-        paddingRight: '0px'
+        transition: 'height 0.28s cubic-bezier(0.25,1,0.5,1), box-shadow 0.28s ease',
       }}
       onMouseEnter={() => {
         setIsConsoleHovered(true);
@@ -723,11 +734,17 @@ ${barcodeSvg.replace('<svg ', `<svg xmlns="http://www.w3.org/2000/svg" data-pati
       {/* Cabecera compacta tipo Antigravity */}
       {renderHeader()}
       
-      {/* Panel Superior: Reporte o Carga (Solo visible cuando está expandido) */}
+      {/* Panel Superior: Reporte o Carga */}
       <div 
-        className={`transition-all duration-300 flex-1 flex flex-col px-[18px] ${
-          showExpanded ? `opacity-100 pointer-events-auto ${effectiveIsQuestionMode ? 'mt-0 mb-1 overflow-visible' : 'mt-1 mb-1.5 overflow-hidden'}` : 'opacity-0 h-0 pointer-events-none overflow-hidden'
+        className={`flex-1 flex flex-col px-[18px] ${
+          showExpanded
+            ? `pointer-events-auto ${effectiveIsQuestionMode ? 'mt-0 mb-1 overflow-visible' : 'mt-1 mb-1.5 overflow-hidden'}`
+            : 'opacity-0 h-0 pointer-events-none overflow-hidden'
         }`}
+        style={{
+          transition: showExpanded ? 'opacity 0.2s ease 0.06s' : 'opacity 0.12s ease',
+          opacity: showExpanded ? 1 : 0,
+        }}
       >
         {effectiveIsQuestionMode ? (
           questionType === 'NEW_PATIENT' ? (

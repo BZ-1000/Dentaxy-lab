@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { X, Minimize2, Maximize2, ChevronRight, Download } from 'lucide-react';
+import { X, Minimize2, Maximize2, ChevronRight, ChevronDown, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { FormDataState } from '@/types/historiaClinica';
@@ -128,47 +128,58 @@ export const DocumentWriterPanel: React.FC<DocumentWriterPanelProps> = ({
       exit={{ width: "0%", opacity: 0 }}
       transition={{ type: 'spring', stiffness: 350, damping: 30 }}
       className={cn(
-        "h-full bg-white border-l border-zinc-100 flex flex-col shadow-2xl overflow-hidden shrink-0 will-change-[width]",
+        "h-full bg-white flex flex-col overflow-hidden shrink-0 will-change-[width] rounded-t-3xl rounded-b-none border border-zinc-200/50 shadow-xl",
         isMobile ? "fixed inset-0 z-[9999]" : "relative z-40"
       )}
     >
-      <div className={cn("flex flex-col h-full w-full", !isMobile && "min-w-[500px]")}>
-      {/* System Header */}
-      <div className="h-12 flex items-center justify-between px-4 border-b border-zinc-100 bg-white z-10 shrink-0">
-        <div className="flex items-center gap-2">
-          <span className="text-[11px] uppercase tracking-widest text-zinc-400 font-semibold">Documento Automático</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" onClick={handleDownloadHTML} className="h-7 w-7 text-zinc-300 hover:text-emerald-500" title="Descargar como HTML ejecutable">
-            <Download className="w-3.5 h-3.5" />
-          </Button>
-          <Button variant="ghost" size="icon" onClick={onToggleExpand} className="h-7 w-7 text-zinc-300 hover:text-zinc-700">
-            {isExpanded ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
-          </Button>
-          <Button variant="ghost" size="icon" onClick={onClose} className="h-7 w-7 text-zinc-300 hover:text-red-400">
-            <X className="w-4 h-4" />
-          </Button>
-        </div>
-      </div>
+      <div className={cn("relative flex flex-col h-full w-full bg-white rounded-t-3xl overflow-hidden", !isMobile && "min-w-[500px]")}>
 
-      {/* Pages / Document Area — fondo blanco puro, scrollbar fantasma */}
-      <div
-        ref={scrollContainerRef}
-        className="flex-1 overflow-y-auto overflow-x-hidden p-6 md:p-10 scroll-smooth dentaxy-scrollbar"
-      >
-        {/* HOJA FÍSICA — sin bordes visibles, un solo plano blanco */}
+        {/* ── BARRA SUPERIOR con difuminado blanco y sin franja sólida ── */}
+        <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-6 pt-4 pb-8 bg-gradient-to-b from-white via-white/90 to-transparent rounded-t-3xl pointer-events-none">
+          {/* Título */}
+          <span className="text-[15px] font-medium text-zinc-800 tracking-tight select-none pointer-events-auto">
+            Documento Automático
+          </span>
+
+          {/* Botones pill derecha */}
+          <div className="flex items-center gap-2 pointer-events-auto">
+            {/* Descargar */}
+            <button
+              onClick={handleDownloadHTML}
+              className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-zinc-100/90 hover:bg-zinc-200/90 text-zinc-700 text-[13px] font-medium transition-all shadow-sm"
+              title="Descargar como HTML"
+            >
+              <Download className="w-3.5 h-3.5 text-zinc-600" />
+              <span>Descargar</span>
+            </button>
+
+            {/* Cerrar */}
+            <button
+              onClick={onClose}
+              className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-zinc-100 text-zinc-400 hover:text-zinc-700 transition-all ml-1"
+              title="Cerrar panel"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* CONTENIDO INTERIOR — Scrollable, con padding superior para espacio al título y difuminado */}
         <div
-          id="dentaxy-print-document"
-          className={cn(
-            "mx-auto bg-white font-mplus",
-            isMobile ? "w-full px-4 py-6 pb-24" : "w-full max-w-[860px] px-10 py-12 pb-[120px]"
-          )}
-          style={{
-            color: '#0f0f0f',
-          }}
+          ref={scrollContainerRef}
+          className="flex-1 overflow-y-auto overflow-x-hidden scroll-smooth dentaxy-scrollbar bg-white flex flex-col px-6 md:px-10 pt-16 pb-16"
         >
-          {/* HEADER DEL DOCUMENTO CLÍNICO */}
-          <header className="border-b border-zinc-200 pb-8 mb-10">
+          {/* HOJA DEL DOCUMENTO */}
+          <div
+            id="dentaxy-print-document"
+            className={cn(
+              "mx-auto bg-white font-mplus flex-1 w-full flex flex-col",
+              isMobile ? "w-full" : "max-w-[860px]"
+            )}
+            style={{ color: '#0f0f0f' }}
+          >
+            {/* HEADER DEL DOCUMENTO CLÍNICO */}
+            <header className="pb-6 mb-8">
             <div className="flex items-start justify-between gap-6">
               <div className="flex flex-col gap-1">
                 <div className="text-[22px] font-light tracking-tight text-zinc-900">
@@ -199,25 +210,25 @@ export const DocumentWriterPanel: React.FC<DocumentWriterPanelProps> = ({
               </a>
             </div>
 
-            {/* Meta Strip */}
-            <div className="mt-7 grid grid-cols-2 md:grid-cols-4 border border-zinc-100 rounded-lg overflow-hidden">
-              <div className="p-2.5 px-4 border-r border-zinc-100">
+            {/* Meta Strip — Con marco gris redondeado sin franjas extra */}
+            <div className="mt-6 grid grid-cols-2 md:grid-cols-4 border-2 border-slate-200/80 rounded-2xl overflow-hidden bg-slate-50/50">
+              <div className="p-3 px-4 border-r border-slate-200/60">
                 <div className="font-mono text-[9px] font-semibold tracking-[0.14em] uppercase text-zinc-400 mb-1">Folio</div>
-                <div className="text-[13px] font-medium text-zinc-800">EXP-2026-001</div>
+                <div className="text-[13px] font-bold text-zinc-800">EXP-2026-001</div>
               </div>
-              <div className="p-2.5 px-4 border-r border-zinc-100">
+              <div className="p-3 px-4 border-r border-slate-200/60">
                 <div className="font-mono text-[9px] font-semibold tracking-[0.14em] uppercase text-zinc-400 mb-1">Fecha</div>
-                <div className="text-[13px] font-medium text-zinc-800">{fechaHoy}</div>
+                <div className="text-[13px] font-bold text-zinc-800">{fechaHoy}</div>
               </div>
-              <div className="p-2.5 px-4 border-r border-zinc-100">
+              <div className="p-3 px-4 border-r border-slate-200/60">
                 <div className="font-mono text-[9px] font-semibold tracking-[0.14em] uppercase text-zinc-400 mb-1">Paciente</div>
-                <div className="text-[13px] font-medium text-zinc-800 uppercase truncate" title={nombrePaciente}>{nombrePaciente}</div>
+                <div className="text-[13px] font-bold text-zinc-800 uppercase truncate" title={nombrePaciente}>{nombrePaciente}</div>
               </div>
-              <div className="p-2.5 px-4">
+              <div className="p-3 px-4">
                 <div className="font-mono text-[9px] font-semibold tracking-[0.14em] uppercase text-zinc-400 mb-1">Estatus</div>
                 <div className={cn(
                   "text-[12px] font-bold tracking-wide flex items-center gap-1.5",
-                  statusActivo ? "text-emerald-500" : "text-zinc-300"
+                  statusActivo ? "text-emerald-500" : "text-zinc-400"
                 )}>
                   {statusActivo && (
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_2px_rgba(52,211,153,0.7)]" />

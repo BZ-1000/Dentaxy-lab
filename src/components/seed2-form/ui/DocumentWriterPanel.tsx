@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { X, Minimize2, Maximize2, ChevronRight, Download } from 'lucide-react';
+import { X, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { FormDataState } from '@/types/historiaClinica';
@@ -138,55 +138,50 @@ export const DocumentWriterPanel: React.FC<DocumentWriterPanelProps> = ({
       exit={{ width: "0%", opacity: 0 }}
       transition={{ type: 'spring', stiffness: 350, damping: 30 }}
       className={cn(
-        "bg-transparent flex flex-col overflow-hidden shrink-0 will-change-[width]",
-        isMobile 
-          ? "fixed inset-0 z-[9999] bg-white" 
-          : "h-full w-full rounded-none m-0 relative z-40"
+        "h-full bg-white flex flex-col overflow-hidden shrink-0 will-change-[width] rounded-t-3xl rounded-b-none border border-zinc-200/50 shadow-xl",
+        isMobile ? "fixed inset-0 z-[9999]" : "relative z-40"
       )}
     >
-      <div className={cn("flex flex-col h-full w-full", !isMobile && "min-w-[500px]")}>
-        {/* HOJA FÍSICA FIJA */}
-        <div
-          className={cn(
-            "relative flex flex-col h-full mx-auto bg-white font-mplus rounded-3xl shadow-sm border border-zinc-200/50 overflow-hidden",
-            isMobile ? "w-full" : "w-full lg:max-w-[calc(98vw-716px)] max-w-[860px]"
-          )}
-          style={{ color: '#0f0f0f' }}
-        >
-          {/* Floating Action Buttons (Glassmorphism) */}
-          {/* Tools (Minimize Panel, Expand, Download) - grouped together */}
-          <div className="absolute top-16 right-6 z-50 flex flex-col gap-3">
-            <button 
-              onClick={onClose} 
-              className="w-10 h-10 rounded-full bg-white/60 backdrop-blur-md flex items-center justify-center text-zinc-500 hover:text-zinc-800 hover:bg-white/90 transition-all shadow-lg border border-black/5" 
-              title="Minimizar panel"
+      <div className={cn("relative flex flex-col h-full w-full bg-white rounded-t-3xl overflow-hidden", !isMobile && "min-w-[500px]")}>
+
+        {/* ── BARRA SUPERIOR con difuminado blanco y sin franja sólida ── */}
+        <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-6 pt-4 pb-8 bg-gradient-to-b from-white via-white/90 to-transparent rounded-t-3xl pointer-events-none">
+          {/* Título */}
+          <span className="text-[15px] font-medium text-zinc-800 tracking-tight select-none pointer-events-auto">
+            Documento Automático
+          </span>
+
+          {/* Botones pill derecha */}
+          <div className="flex items-center gap-2 pointer-events-auto">
+            {/* Descargar */}
+            <button
+              onClick={handleDownloadHTML}
+              className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-zinc-100/90 hover:bg-zinc-200/90 text-zinc-700 text-[13px] font-medium transition-all shadow-sm"
+              title="Descargar como HTML"
             >
-              <ChevronRight className="w-5 h-5" />
+              <Download className="w-3.5 h-3.5 text-zinc-600" />
+              <span>Descargar</span>
             </button>
-            <button 
-              onClick={onToggleExpand} 
-              className="w-10 h-10 rounded-full bg-white/60 backdrop-blur-md flex items-center justify-center text-zinc-500 hover:text-zinc-800 hover:bg-white/90 transition-all shadow-lg border border-black/5" 
-              title={isExpanded ? "Restaurar" : "Expandir"}
+
+            {/* Cerrar */}
+            <button
+              onClick={onClose}
+              className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-zinc-100 text-zinc-400 hover:text-zinc-700 transition-all ml-1"
+              title="Cerrar panel"
             >
-              {isExpanded ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
-            </button>
-            <button 
-              onClick={handleDownloadHTML} 
-              className="w-10 h-10 rounded-full bg-white/60 backdrop-blur-md flex items-center justify-center text-zinc-500 hover:text-emerald-600 hover:bg-white/90 transition-all shadow-lg border border-black/5" 
-              title="Descargar como HTML ejecutable"
-            >
-              <Download className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
           </div>
+        </div>
 
-          {/* SCROLLABLE INTERIOR */}
-          <div
-            id="dentaxy-print-document"
-            ref={scrollContainerRef}
-            className="flex-1 overflow-y-auto overflow-x-hidden p-6 md:px-10 md:pt-6 scroll-smooth dentaxy-scrollbar bg-white pb-[550px]"
-          >
-            {/* HEADER DEL DOCUMENTO CLÍNICO */}
-            <header className="border-b border-zinc-200 pb-8 mb-10">
+        {/* CONTENIDO INTERIOR — Scrollable, con padding superior para espacio al título y difuminado */}
+        <div
+          id="dentaxy-print-document"
+          ref={scrollContainerRef}
+          className="flex-1 overflow-y-auto overflow-x-hidden scroll-smooth dentaxy-scrollbar bg-white flex flex-col px-6 md:px-10 pt-16 pb-16"
+        >
+          {/* HEADER DEL DOCUMENTO CLÍNICO */}
+          <header className="border-b border-zinc-200 pb-8 mb-10">
             <div className="flex items-start justify-between gap-6">
               <div className="flex flex-col gap-1">
                 <div className="text-[22px] font-light tracking-tight text-zinc-900">
@@ -202,7 +197,7 @@ export const DocumentWriterPanel: React.FC<DocumentWriterPanelProps> = ({
                 href="https://dentaxy.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2.5 shrink-0 opacity-70 hover:opacity-100 transition-opacity cursor-pointer group mr-12"
+                className="flex items-center gap-2.5 shrink-0 opacity-70 hover:opacity-100 transition-opacity cursor-pointer group"
                 title="Dentaxy Technologies"
               >
                 <img
@@ -341,7 +336,6 @@ export const DocumentWriterPanel: React.FC<DocumentWriterPanelProps> = ({
             </div>
           )}
         </div>
-      </div>
       </div>
     </motion.div>
   );

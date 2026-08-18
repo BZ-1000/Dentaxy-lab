@@ -15,8 +15,8 @@ export const ATMCard: React.FC<ATMCardProps> = ({
     onToggleViewMode,
 }) => {
     return (
-        <div className="w-full bg-white">
-            <div className="w-full bg-white">
+        <div className="w-full bg-transparent">
+            <div className="w-full bg-transparent">
                 <div data-section="atm">
                     <ArticulacionCraneomandibular
                         formData={formData}

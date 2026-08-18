@@ -8,6 +8,7 @@ import {
   Sprout,
   ShoppingBag,
   FlaskConical,
+  GraduationCap,
   Users,
   Newspaper,
   Award,
@@ -29,6 +30,7 @@ interface NavSubItem {
   icon: React.ReactNode;
   iconBg: string;
   href: string;
+  isNew?: boolean;
 }
 
 interface NavGroup {
@@ -50,6 +52,17 @@ const navGroups: NavGroup[] = [
         icon: <Sprout className="w-5 h-5" />,
         iconBg: "bg-blue-100 text-blue-600",
         href: "/seed",
+      },
+      {
+        title: "Academy",
+        badge: "Lanzamiento",
+        badgeColor: "bg-purple-600 text-white font-bold shadow-sm",
+        description:
+          "Tu clínica universitaria sin burocracia. Redacta tu NOM-004 en segundos. Sin guardar datos, 100% privado.",
+        icon: <GraduationCap className="w-5 h-5" />,
+        iconBg: "bg-purple-600 text-white shadow-sm",
+        href: "/academy",
+        isNew: true,
       },
       {
         title: "Shop",
@@ -140,26 +153,41 @@ const MegaMenuItem: React.FC<{ item: NavSubItem; onClose: () => void }> = ({ ite
   <Link
     to={item.href}
     onClick={onClose}
-    className="group flex items-start gap-4 p-4 rounded-2xl hover:bg-gray-50 transition-all duration-75"
+    className={`group flex items-start gap-3.5 p-3.5 rounded-2xl transition-all duration-150 relative ${
+      item.isNew
+        ? "bg-purple-50/70 hover:bg-purple-100/70"
+        : "hover:bg-gray-50"
+    }`}
   >
+    {/* Glow Badge Pulsante de Notificación */}
+    {item.isNew && (
+      <span className="absolute -top-1 -right-1 flex h-3 w-3">
+        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+        <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-600 border-2 border-white shadow-sm"></span>
+      </span>
+    )}
+
     {/* Ícono */}
-    <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${item.iconBg} group-hover:scale-110 transition-transform duration-100`}>
+    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${item.iconBg} group-hover:scale-110 transition-transform duration-150`}>
       {item.icon}
     </div>
 
     {/* Contenido */}
     <div className="flex-1 min-w-0">
-      <div className="flex items-center gap-2 mb-1">
-        <span className="font-semibold text-gray-900 text-sm">{item.title}</span>
-        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${item.badgeColor}`}>
+      <div className="flex items-center gap-2 mb-0.5">
+        <span className={`font-bold text-sm ${item.isNew ? "text-purple-950" : "text-gray-900"}`}>{item.title}</span>
+        <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${item.badgeColor} flex items-center gap-1`}>
+          {item.isNew && <Sparkles className="w-2.5 h-2.5 animate-spin" />}
           {item.badge}
         </span>
       </div>
       <p className="text-xs text-gray-500 leading-relaxed line-clamp-2">{item.description}</p>
     </div>
 
-    {/* Arrow */}
-    <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-gray-500 group-hover:translate-x-1 transition-all duration-100 mt-1 shrink-0" />
+    {/* Arrow ubicado en la parte inferior derecha de la card */}
+    <ArrowRight className={`w-4 h-4 transition-all duration-150 mt-auto mb-1 shrink-0 ${
+      item.isNew ? "text-purple-600 group-hover:translate-x-1" : "text-gray-300 group-hover:text-gray-500 group-hover:translate-x-1"
+    }`} />
   </Link>
 );
 
@@ -260,13 +288,18 @@ export const DentaxyNav: React.FC = () => {
                   onMouseEnter={() => setMenuOpen(true)}
                   onMouseLeave={() => setMenuOpen(false)}
                   onClick={() => setMenuOpen((v) => !v)}
-                  className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                     menuOpen
                       ? "bg-gray-50 text-gray-900"
-                      : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                   }`}
                 >
-                  Productos
+                  <span>Productos</span>
+                  {/* Badge de notificación pulsante para Academy */}
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-600"></span>
+                  </span>
                   <ChevronDown
                     className={`w-3.5 h-3.5 transition-transform duration-200 ${menuOpen ? "rotate-180" : ""}`}
                   />
@@ -380,15 +413,20 @@ export const DentaxyNav: React.FC = () => {
                         key={item.title}
                         to={item.href}
                         onClick={() => setMobileOpen(false)}
-                        className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors"
+                        className={`flex items-center gap-3 p-3 rounded-xl transition-all relative ${
+                          item.isNew
+                            ? "bg-purple-50/80 my-1"
+                            : "hover:bg-gray-50"
+                        }`}
                       >
                         <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${item.iconBg}`}>
                           {item.icon}
                         </div>
-                        <div>
+                        <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <span className="font-semibold text-sm text-gray-900">{item.title}</span>
-                            <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${item.badgeColor}`}>
+                            <span className={`font-bold text-sm ${item.isNew ? "text-purple-950" : "text-gray-900"}`}>{item.title}</span>
+                            <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${item.badgeColor} flex items-center gap-1`}>
+                              {item.isNew && <Sparkles className="w-2.5 h-2.5 animate-spin" />}
                               {item.badge}
                             </span>
                           </div>

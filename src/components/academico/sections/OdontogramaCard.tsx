@@ -15,8 +15,8 @@ export const OdontogramaCard: React.FC<OdontogramaCardProps> = ({
     onToggleViewMode,
 }) => {
     return (
-        <div className="w-full bg-white">
-            <div className="w-full bg-white">
+        <div className="w-full bg-transparent">
+            <div className="w-full bg-transparent">
                 <div data-section="odontograma">
                     <Odontograma
                         formData={formData}

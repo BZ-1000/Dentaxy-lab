@@ -337,7 +337,7 @@ export const generateOdontogramText = (teeth: ToothData[]): string => {
   paragraphs.push('El resto de la dentición se observa clínicamente dentro de parámetros normales.');
 
   return paragraphs
-    .map(p => `<p style="margin: 0 0 12px; font-size: 14px; line-height: 1.65; color: #374151;">${p}</p>`)
+    .map(p => `<p style="margin: 0 0 14px; font-size: 15px; line-height: 1.75; color: #F5F5F7; font-weight: 500;">${p}</p>`)
     .join('');
 };
 
@@ -622,9 +622,9 @@ export const generateOdontogramHTML = (teeth: ToothData[]): string => {
     }).join(', ');
     return `
       <tr>
-        <td style="padding:7px 12px 7px 0;white-space:nowrap">
-          <span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:${color}">
-            <span style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0;display:inline-block"></span>
+        <td style="padding:9px 14px 9px 0;white-space:nowrap">
+          <span style="display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:${color}">
+            <span style="width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0;display:inline-block"></span>
             ${label}
           </span>
         </td>
@@ -638,31 +638,31 @@ export const generateOdontogramHTML = (teeth: ToothData[]): string => {
   const phase3 = plan.filter(p => p.phase === 3);
 
   const phaseColors = {
-    1: { bg: '#FEF2F2', border: '#EA4335', label: 'FASE I — Urgencia / Control de infección', color: '#EA4335' },
-    2: { bg: '#EFF6FF', border: '#1A73E8', label: 'FASE II — Rehabilitadora y estética', color: '#1A73E8' },
-    3: { bg: '#F0FDF4', border: '#1D9E75', label: 'FASE III — Mantenimiento y prevención', color: '#1D9E75' },
+    1: { bg: '#fef2f2', headerBg: '#fee2e2', border: '#ef4444', label: 'FASE I — Urgencia / Control de infección', color: '#b91c1c' },
+    2: { bg: '#f0f9ff', headerBg: '#e0f2fe', border: '#3b82f6', label: 'FASE II — Rehabilitadora y estética', color: '#1d4ed8' },
+    3: { bg: '#ecfdf5', headerBg: '#d1fae5', border: '#10b981', label: 'FASE III — Mantenimiento y prevención', color: '#047857' },
   };
 
   const renderPhase = (items: TreatmentItem[], phaseNum: 1 | 2 | 3): string => {
     if (items.length === 0) return '';
-    const { bg, border, label, color } = phaseColors[phaseNum];
+    const { bg, headerBg, border, label, color } = phaseColors[phaseNum];
     const rows = items.map(i => `
-      <tr style="border-bottom:1px solid rgba(0,0,0,0.04)">
-        <td style="padding:10px 12px;font-size:13px;color:#1F2937;font-weight:600;white-space:nowrap">OD ${i.tooth}</td>
-        <td style="padding:10px 12px;font-size:13px;color:#374151;line-height:1.5">${i.procedure}</td>
-        <td style="padding:10px 12px;font-size:12px;color:${i.priority === 'Alta' ? '#EA4335' : i.priority === 'Media' ? '#D97706' : '#1D9E75'};font-weight:700">${i.priority}</td>
-        <td style="padding:10px 12px;font-size:12px;color:#4B5563;white-space:nowrap">${i.estimatedTime}</td>
+      <tr style="border-bottom:1px solid rgba(0,0,0,0.06)">
+        <td style="padding:12px 14px;font-size:15px;color:#1e293b;font-weight:700;white-space:nowrap">OD ${i.tooth}</td>
+        <td style="padding:12px 14px;font-size:15px;color:#334155;line-height:1.6;font-weight:500">${i.procedure}</td>
+        <td style="padding:12px 14px;font-size:14px;color:${i.priority === 'Alta' ? '#dc2626' : i.priority === 'Media' ? '#d97706' : '#059669'};font-weight:800">${i.priority}</td>
+        <td style="padding:12px 14px;font-size:14px;color:#64748b;white-space:nowrap">${i.estimatedTime}</td>
       </tr>`).join('');
     return `
-      <div style="margin-bottom:18px;border-radius:12px;overflow:hidden;border-left:4px solid ${border};background:${bg};box-shadow:0 1px 3px rgba(0,0,0,0.03)">
-        <div style="padding:10px 14px;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:${color}">${label}</div>
+      <div style="margin-bottom:24px;border-radius:20px;overflow:hidden;border-left:5px solid ${border};background:${bg};box-shadow: 6px 6px 14px #cbd2de, -6px -6px 14px #ffffff;">
+        <div style="padding:14px 18px;font-size:13px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:${color};background:${headerBg}">${label}</div>
         <table style="width:100%;border-collapse:collapse">
           <thead>
-            <tr style="background:rgba(0,0,0,0.03)">
-              <th style="padding:8px 12px;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#4B5563;text-align:left;font-weight:700">OD</th>
-              <th style="padding:8px 12px;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#4B5563;text-align:left;font-weight:700">Procedimiento</th>
-              <th style="padding:8px 12px;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#4B5563;text-align:left;font-weight:700">Prioridad</th>
-              <th style="padding:8px 12px;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#4B5563;text-align:left;font-weight:700">Tiempo Est.</th>
+            <tr style="background:rgba(0,0,0,0.02)">
+              <th style="padding:10px 14px;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#64748b;text-align:left;font-weight:700">OD</th>
+              <th style="padding:10px 14px;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#64748b;text-align:left;font-weight:700">Procedimiento</th>
+              <th style="padding:10px 14px;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#64748b;text-align:left;font-weight:700">Prioridad</th>
+              <th style="padding:10px 14px;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#64748b;text-align:left;font-weight:700">Tiempo Est.</th>
             </tr>
           </thead>
           <tbody>${rows}</tbody>
@@ -672,35 +672,39 @@ export const generateOdontogramHTML = (teeth: ToothData[]): string => {
 
   // ── Diagnóstico ────────────────────────────────────────────────────────────
   const diagRows = diagnoses.map(d => `
-    <tr style="border-bottom:1px solid #F3F4F6">
-      <td style="padding:8px 12px 8px 0;font-size:13px;font-weight:700;color:#7B4FA8;white-space:nowrap">${d.code}</td>
-      <td style="padding:8px 0;font-size:14px;color:#374151;line-height:1.5">${d.description}</td>
+    <tr style="border-bottom:1px solid rgba(0,0,0,0.06)">
+      <td style="padding:12px 14px 12px 0;font-size:15px;font-weight:800;color:#6b21a8;white-space:nowrap">${d.code}</td>
+      <td style="padding:12px 0;font-size:15px;color:#1e293b;line-height:1.6;font-weight:500">${d.description}</td>
     </tr>`).join('');
 
-  // ── HTML final ─────────────────────────────────────────────────────────────
-  return `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1F2937">
+  // ── HTML final sin divs contenedores de relleno ────────────────────────────
+  return `<div style="font-family:'Plus Jakarta Sans','Inter',-apple-system,sans-serif;color:#1e293b">
 
-  <div style="margin-bottom:20px;padding:18px 20px;border-radius:12px;background:#ffffff;border:1px solid #E5E7EB;box-shadow:0 1px 3px rgba(0,0,0,0.02)">
-    <p style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#6B7280;margin:0 0 14px">VII · HALLAZGOS Y REDACCIÓN DEL ODONTOGRAMA</p>
-    ${activeStates.length > 0 ? `
-    <table style="width:100%;border-collapse:collapse;margin-bottom:16px">
+  ${activeStates.length > 0 ? `
+  <div style="margin-bottom:28px">
+    <p style="font-size:14px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#1e293b;margin:0 0 16px;border-bottom:2px solid #cbd2de;padding-bottom:8px">HALLAZGOS Y REDACCIÓN DEL ODONTOGRAMA</p>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:20px">
       <tbody>${hallazgosRows}</tbody>
-    </table>` : ''}
-    <div style="border-top:${activeStates.length > 0 ? '1px solid #F3F4F6' : 'none'};padding-top:${activeStates.length > 0 ? '14px' : '0'}">
+    </table>
+    <div style="font-size:15px;line-height:1.75;color:#334155">
       ${clinicalText}
     </div>
-  </div>
+  </div>` : `
+  <div style="margin-bottom:28px;font-size:15px;line-height:1.75;color:#334155">
+    ${clinicalText}
+  </div>`}
 
-  <div style="margin-bottom:20px;padding:18px 20px;border-radius:12px;background:#ffffff;border:1px solid #E5E7EB;box-shadow:0 1px 3px rgba(0,0,0,0.02)">
-    <p style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#6B7280;margin:0 0 14px">VIII · DIAGNÓSTICO PRESUNTIVO (CIE-10)</p>
+  ${diagnoses.length > 0 ? `
+  <div style="margin-bottom:32px">
+    <p style="font-size:14px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#1e293b;margin:0 0 16px;border-bottom:2px solid #cbd2de;padding-bottom:8px">DIAGNÓSTICO PRESUNTIVO (CIE-10)</p>
     <table style="width:100%;border-collapse:collapse">
       <tbody>${diagRows}</tbody>
     </table>
-  </div>
+  </div>` : ''}
 
   ${plan.length > 0 ? `
-  <div style="margin-bottom:20px;padding:18px 20px;border-radius:12px;background:#ffffff;border:1px solid #E5E7EB;box-shadow:0 1px 3px rgba(0,0,0,0.02)">
-    <p style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#6B7280;margin:0 0 16px">IX · PLAN DE TRATAMIENTO Y SECUENCIA CLÍNICA</p>
+  <div style="margin-bottom:32px">
+    <p style="font-size:14px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#1e293b;margin:0 0 20px;border-bottom:2px solid #cbd2de;padding-bottom:8px">PLAN DE TRATAMIENTO Y SECUENCIA CLÍNICA</p>
     ${renderPhase(phase1, 1)}
     ${renderPhase(phase2, 2)}
     ${renderPhase(phase3, 3)}
