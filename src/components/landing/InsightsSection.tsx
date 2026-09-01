@@ -703,6 +703,8 @@ export const InsightsSection = ({ mainRef }: { mainRef?: React.RefObject<HTMLDiv
                   key={featuredLink}
                   src={featuredLink}
                   title={`Vista Previa de ${featuredLink}`}
+                  loading="lazy"
+                  sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
                   className="absolute top-0 left-0 border-none select-none pointer-events-none origin-top-left"
                   style={{
                     width: "200%",
@@ -710,7 +712,6 @@ export const InsightsSection = ({ mainRef }: { mainRef?: React.RefObject<HTMLDiv
                     transform: "scale(0.5)",
                     overflow: "hidden"
                   }}
-                  scrolling="no"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-slate-400 text-xs font-semibold">
