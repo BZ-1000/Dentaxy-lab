@@ -99,6 +99,7 @@ import { Seed2Phase } from './core/packages/seed2/Seed2Phase';
 // Dentaxy Academy
 import AcademyLanding from './pages/academy/AcademyLanding';
 import AcademyApp from './pages/academy/AcademyApp';
+import DentaxyAcademyCursos from './pages/academy/DentaxyAcademyCursos';
 
 // Dentaxy Ecosistema (páginas de cada producto)
 import LabPage from './pages/ecosystem/LabPage';
@@ -235,6 +236,8 @@ function App() {
                   {/* Dentaxy Academy */}
                   <Route path="/academy" element={<AcademyLanding />} />
                   <Route path="/academy/app" element={<AcademyApp />} />
+                  <Route path="/academy/cursos" element={<DentaxyAcademyCursos />} />
+                  <Route path="/cursos" element={<DentaxyAcademyCursos />} />
 
                   {/* Dentaxy Ecosistema — Páginas de cada producto */}
                   <Route path="/lab" element={<LabPage />} />

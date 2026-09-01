@@ -6,6 +6,10 @@ interface PatologicosCardProps {
     handleAntecedentePatologicoChange: any;
     onSeccionGenerada: (seccionId: string, contenido: string) => void;
     onToggleViewMode?: () => void;
+    onSectionComplete?: () => void;
+    microStep?: number;
+    onMicroStepChange?: (step: number) => void;
+    onTotalMicroStepsChange?: (total: number, names: string[]) => void;
 }
 
 export const PatologicosCard: React.FC<PatologicosCardProps> = ({
@@ -13,6 +17,10 @@ export const PatologicosCard: React.FC<PatologicosCardProps> = ({
     handleAntecedentePatologicoChange,
     onSeccionGenerada,
     onToggleViewMode,
+    onSectionComplete,
+    microStep,
+    onMicroStepChange,
+    onTotalMicroStepsChange,
 }) => {
     return (
         <div className="w-full bg-transparent">
@@ -23,6 +31,10 @@ export const PatologicosCard: React.FC<PatologicosCardProps> = ({
                         handleAntecedentePatologicoChange={handleAntecedentePatologicoChange}
                         onRedaccionGenerada={(content: string) => onSeccionGenerada('patologicos', content)}
                         onToggleViewMode={onToggleViewMode}
+                        onSectionComplete={onSectionComplete}
+                        microStep={microStep}
+                        onMicroStepChange={onMicroStepChange}
+                        onTotalMicroStepsChange={onTotalMicroStepsChange}
                     />
                 </div>
             </div>

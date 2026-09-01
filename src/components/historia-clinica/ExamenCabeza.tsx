@@ -5,7 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FormDataState } from '@/types/historiaClinica';
 import { Button } from "@/components/ui/button";
-import { Minus, Maximize2, X, Copy, CheckCircle, ChevronDown, RotateCcw } from "lucide-react";
+import { Minus, Maximize2, X, Copy, CheckCircle, ChevronDown } from "lucide-react";
 import { AnimatedTextareaWithTyping } from "@/components/ui/AnimatedTextareaWithTyping"; // Asegúrate de tener este componente
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
@@ -775,14 +775,6 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange, onRedaccionGenerada,
                     className="hidden data-trigger-generation"
                     aria-label="Generar redacción examen cabeza"
                   />
-                  <Button
-                    variant="ghost"
-                    onClick={limpiarFormulario}
-                    className="text-xs text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10"
-                  >
-                    <RotateCcw className="w-3 h-3 mr-2" />
-                    Reiniciar Sección
-                  </Button>
                 </div>
 
               </div>

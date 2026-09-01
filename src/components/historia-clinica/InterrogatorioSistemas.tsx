@@ -3,7 +3,7 @@ import { FormDataState } from '@/types/historiaClinica';
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Eraser } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 
 interface InterrogatorioSistemasProps {
@@ -244,14 +244,6 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
             </Button>
           )}
 
-          <Button
-            variant="ghost"
-            onClick={limpiarFormulario}
-            className="text-xs text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10"
-          >
-            <Eraser className="w-3 h-3 mr-2" />
-            Reiniciar Sección
-          </Button>
         </div>
       </div>
     </div>

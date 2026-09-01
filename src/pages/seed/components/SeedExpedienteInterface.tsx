@@ -164,7 +164,8 @@ export default function SeedExpedienteInterface({
       className="fixed inset-0 z-[100] flex flex-col overflow-hidden select-none bg-black border-none shadow-none"
       style={{
         backgroundColor: '#000000',
-        background: '#000000',
+        backgroundImage: 'radial-gradient(circle, rgba(255, 255, 255, 0.16) 1.5px, transparent 1.5px)',
+        backgroundSize: '20px 20px',
         backdropFilter: 'none',
         WebkitBackdropFilter: 'none',
         boxShadow: 'none',
@@ -282,7 +283,13 @@ export default function SeedExpedienteInterface({
           </button>
         </div>
 
-
+        {/* Centro: Nombre del Paciente en la Barra Superior */}
+        <div className="flex items-center gap-2.5 px-5 py-2 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl text-white">
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" />
+          <span className="text-xs sm:text-sm font-black tracking-widest uppercase text-white font-mono drop-shadow-sm">
+            EXPEDIENTE • {patientName}
+          </span>
+        </div>
 
         {/* Esquina Derecha Duplicada */}
         <div className="flex items-center gap-2.5">
@@ -419,25 +426,8 @@ export default function SeedExpedienteInterface({
         </AnimatePresence>
       </div>
 
-      {/* ── NOMBRE Y APELLIDO DEL PACIENTE EN BLANCO BRILLANTE (#FFFFFF DETRÁS DE DEX z-0) ── */}
-      <div className="relative z-0 flex-1 w-full max-w-none mx-auto flex flex-col items-center justify-center pointer-events-none px-1 sm:px-2 pt-8 pb-6 text-center overflow-hidden -translate-y-28">
-        <motion.h1
-          initial={{ opacity: 0, scale: 0.9, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-          className="font-bruno-ace text-center uppercase font-black select-none w-full whitespace-normal break-words leading-[0.88]"
-          style={{
-            fontSize: 'clamp(2.2rem, min(12.5vw, 26vh), 15rem)',
-            letterSpacing: '-0.05em',
-          }}
-        >
-          {patientName.split(' ').map((word, idx) => (
-            <span key={idx} className="inline-block text-glowing-white mx-[0.12em]">
-              {word}
-            </span>
-          ))}
-        </motion.h1>
-      </div>
+      {/* ── ESPACIADOR FLEXIBLE LIBRE PARA MANTENER ESTRUCTURA Y ENFOQUE EN LA ESFERA ── */}
+      <div className="flex-1 w-full pointer-events-none" />
 
       {/* ── DASHBOARD INFERIOR DUPLICADO PARA EXPEDIENTE (ANIMACIÓN LÍQUIDA - IDÉNTICO AL PRINCIPAL) ── */}
       <motion.div 

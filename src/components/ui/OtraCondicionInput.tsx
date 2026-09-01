@@ -1,54 +1,7 @@
-
 "use client";
 
 import React, { forwardRef } from "react";
 import { cn } from "@/lib/utils";
-import { motion, Transition } from "framer-motion";
-
-type BorderTrailProps = {
-  className?: string;
-  size?: number;
-  transition?: Transition;
-  delay?: number;
-  onAnimationComplete?: () => void;
-  style?: React.CSSProperties;
-};
-
-export function BorderTrail({
-  className,
-  size = 60,
-  transition,
-  delay,
-  onAnimationComplete,
-  style,
-}: BorderTrailProps) {
-  const BASE_TRANSITION: Transition = {
-    repeat: Infinity,
-    duration: 5,
-    ease: "linear",
-  };
-
-  return (
-    <div className="pointer-events-none absolute inset-0 rounded-[inherit] border border-transparent [mask-clip:padding-box,border-box] [mask-composite:intersect] [mask-image:linear-gradient(transparent,transparent),linear-gradient(#000,#000)]">
-      <motion.div
-        className={cn("absolute aspect-square bg-zinc-500", className)}
-        style={{
-          width: size,
-          offsetPath: `rect(0 auto auto 0 round ${size}px)`,
-          ...style,
-        }}
-        animate={{
-          offsetDistance: ["0%", "100%"],
-        }}
-        transition={{
-          ...(transition ?? BASE_TRANSITION),
-          delay: delay,
-        }}
-        onAnimationComplete={onAnimationComplete}
-      />
-    </div>
-  );
-}
 
 interface OtraCondicionInputProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   className?: string;
@@ -57,23 +10,19 @@ interface OtraCondicionInputProps extends React.TextareaHTMLAttributes<HTMLTextA
 }
 
 const OtraCondicionInput = forwardRef<HTMLTextAreaElement, OtraCondicionInputProps>(
-  ({ className, style, autoFocus, ...props }, ref) => {
+  ({ className, style, autoFocus, rows = 2, ...props }, ref) => {
     return (
-      <div className="relative h-10 w-full overflow-hidden rounded-md border border-zinc-300 dark:border-zinc-700 bg-transparent text-zinc-900 dark:text-zinc-200">
+      <div className="w-full">
         <textarea
           ref={ref}
           {...props}
+          rows={rows}
           autoFocus={autoFocus}
-          rows={1}
           className={cn(
-            "h-full w-full resize-none rounded-md bg-transparent px-2 py-1 text-sm outline-none dark:placeholder:text-zinc-500 placeholder:text-zinc-400",
+            "w-full min-h-[64px] sm:min-h-[72px] resize-none rounded-2xl sm:rounded-3xl border-2 border-zinc-200 dark:border-zinc-700 bg-white/90 dark:bg-zinc-800/90 backdrop-blur-md px-4 sm:px-5 py-3.5 sm:py-4 text-sm sm:text-base font-semibold text-zinc-900 dark:text-zinc-100 outline-none focus:outline-none focus:border-[#00f5a0] dark:focus:border-[#00f5a0] focus:ring-0 focus:shadow-[0_0_14px_rgba(0,245,160,0.45)] dark:placeholder:text-zinc-500 placeholder:text-zinc-400 leading-normal font-sans transition-all duration-200 shadow-sm",
             className
           )}
-          style={{ ...style, overflow: "hidden" }}
-        />
-        <BorderTrail
-          className="bg-gradient-to-l from-blue-200 via-blue-500 to-blue-200 dark:from-blue-400 dark:via-blue-500 dark:to-blue-700"
-          size={130}
+          style={{ ...style }}
         />
       </div>
     );

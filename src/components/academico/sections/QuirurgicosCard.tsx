@@ -6,6 +6,10 @@ interface QuirurgicosCardProps {
     handleAntecedenteQuirurgicoChange: any;
     onSeccionGenerada: (seccionId: string, contenido: string) => void;
     onToggleViewMode?: () => void;
+    onSectionComplete?: () => void;
+    microStep?: number;
+    onMicroStepChange?: (step: number) => void;
+    onTotalMicroStepsChange?: (total: number, names: string[]) => void;
 }
 
 export const QuirurgicosCard: React.FC<QuirurgicosCardProps> = ({
@@ -13,6 +17,10 @@ export const QuirurgicosCard: React.FC<QuirurgicosCardProps> = ({
     handleAntecedenteQuirurgicoChange,
     onSeccionGenerada,
     onToggleViewMode,
+    onSectionComplete,
+    microStep = 0,
+    onMicroStepChange,
+    onTotalMicroStepsChange,
 }) => {
     return (
         <div className="w-full bg-transparent">
@@ -23,6 +31,10 @@ export const QuirurgicosCard: React.FC<QuirurgicosCardProps> = ({
                         handleAntecedenteQuirurgicoChange={handleAntecedenteQuirurgicoChange}
                         onRedaccionGenerada={(content: string) => onSeccionGenerada('quirurgicos', content)}
                         onToggleViewMode={onToggleViewMode}
+                        onSectionComplete={onSectionComplete}
+                        microStep={microStep}
+                        onMicroStepChange={onMicroStepChange}
+                        onTotalMicroStepsChange={onTotalMicroStepsChange}
                     />
                 </div>
             </div>

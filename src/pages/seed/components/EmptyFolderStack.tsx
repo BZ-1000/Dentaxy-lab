@@ -83,15 +83,28 @@ export default function EmptyFolderStack({
 
               {/* CAPA 2: PAPEL INTERNO TRANSLÚCIDO (Crea volumen y se esconde bajo la pestaña) */}
               <div
-                className="absolute left-[12px] right-[12px] top-[44px] bottom-[16px] rounded-xl pointer-events-none"
+                className="absolute left-[12px] right-[12px] top-[44px] bottom-[16px] rounded-xl pointer-events-none p-2 pl-4 flex flex-col items-start justify-center text-left overflow-hidden"
                 style={{
                   transform: 'translate3d(0, 0, 12px)',
-                  background: 'rgba(255, 255, 255, 0.20)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  background: 'rgba(255, 255, 255, 0.40)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
                   boxShadow: 'inset 0 0 10px rgba(255,255,255,0.2), 0 4px 6px rgba(0,0,0,0.05)',
                   zIndex: 10,
                 }}
-              />
+              >
+                <h4
+                  className="text-[16px] sm:text-[18px] font-black text-slate-900 tracking-tighter leading-none uppercase select-none opacity-90"
+                  style={{ fontFamily: "'Bruno Ace SC', sans-serif" }}
+                >
+                  DENTAXY
+                </h4>
+                <span
+                  className="text-[7.5px] sm:text-[8.5px] tracking-[0.35em] uppercase text-slate-600 font-bold mt-1 select-none opacity-85"
+                  style={{ fontFamily: "'Bruno Ace SC', sans-serif" }}
+                >
+                  TECHNOLOGIES
+                </span>
+              </div>
 
               {/* LOMO INFERIOR (SPINE) EN 3D PARA VOLUMEN FÍSICO */}
               <div className="seed-folder-spine"></div>

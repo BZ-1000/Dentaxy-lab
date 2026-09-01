@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { FormDataState } from '@/types/historiaClinica';
-import { Eraser, ChevronRight, User, Calendar, Users, Phone, Stethoscope } from 'lucide-react';
+import { User, Calendar, Users, Phone, Stethoscope } from 'lucide-react';
 
 // ─── Tipos de tratamiento para el chip de clasificación ───────────────────────
 const TIPOS_TRATAMIENTO = [
@@ -156,30 +156,19 @@ interface DatosGeneralesCardProps {
   handleDatosGeneralesChange: (field: string, value: string) => void;
   onToggleViewMode: () => void;
   onSeccionGenerada: (seccionId: string, textoResumen: string) => void;
-  onNextStep?: () => void;
+
 }
 
 export const DatosGeneralesCard: React.FC<DatosGeneralesCardProps> = ({
   formData,
   handleDatosGeneralesChange,
   onSeccionGenerada,
-  onNextStep,
+
 }) => {
   const data = formData.datosGenerales;
   const [tipoTratamiento, setTipoTratamiento] = useState(
     (data as any).tipoTratamiento || ''
   );
-
-  // Función para reiniciar el formulario de Datos Generales
-  const handleReset = () => {
-    handleDatosGeneralesChange('nombreCompleto', '');
-    handleDatosGeneralesChange('fechaNacimiento', '');
-    handleDatosGeneralesChange('sexo', '');
-    handleDatosGeneralesChange('telefono', '');
-    setTipoTratamiento('');
-    handleDatosGeneralesChange('tipoTratamiento', '');
-    onSeccionGenerada('datosGenerales', '');
-  };
 
   const generarTextoFormateado = () => {
     const tratamientoObj = TIPOS_TRATAMIENTO.find(t => t.value === tipoTratamiento);
@@ -229,21 +218,9 @@ export const DatosGeneralesCard: React.FC<DatosGeneralesCardProps> = ({
     onSeccionGenerada('datosGenerales', html);
   };
 
-  // Validación: Solo se puede dar siguiente si están llenos los datos requeridos (Iniciales, Edad, Sexo y Teléfono)
-  const isFormComplete = Boolean(
-    data.nombreCompleto?.trim() &&
-    data.fechaNacimiento?.trim() &&
-    data.sexo?.trim() &&
-    data.telefono?.trim()
-  );
-
-  const handleNextClick = () => {
-    if (!isFormComplete) return;
+  useEffect(() => {
     generarTextoFormateado();
-    if (onNextStep) {
-      onNextStep();
-    }
-  };
+  }, [data.nombreCompleto, data.fechaNacimiento, data.sexo, data.telefono, tipoTratamiento]);
 
   return (
     <div className="w-full flex justify-center bg-transparent">
@@ -254,6 +231,10 @@ export const DatosGeneralesCard: React.FC<DatosGeneralesCardProps> = ({
           transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
           className="flex flex-col gap-6 w-full mx-auto text-left pt-2"
         >
+          {/* Título de la sección al estilo Padecimiento Actual */}
+          <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-zinc-900 dark:text-white leading-tight mb-2 drop-shadow-sm">
+            Ingrese los datos generales del paciente
+          </h2>
           {/* Bloque 1: Identificación (Iniciales y Edad lado a lado) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 w-full">
             <BlockInput
@@ -328,32 +309,7 @@ export const DatosGeneralesCard: React.FC<DatosGeneralesCardProps> = ({
             }}
           />
 
-          {/* Navegación Inferior: Botones Reiniciar y Siguiente (Estilo Grande de Padecimiento Actual) */}
-          <div className="flex justify-between items-center pt-8 mt-4 z-10 border-t border-zinc-200/60 dark:border-zinc-800">
-            <button
-              type="button"
-              onClick={handleReset}
-              className="text-sm font-bold text-zinc-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-2xl px-5 py-3 transition-colors flex items-center cursor-pointer"
-            >
-              <Eraser className="w-4 h-4 mr-2" />
-              Reiniciar
-            </button>
 
-            <button
-              type="button"
-              disabled={!isFormComplete}
-              onClick={handleNextClick}
-              className={cn(
-                "rounded-3xl px-8 py-4 text-lg font-bold shadow-md transition-all flex items-center gap-3 cursor-pointer",
-                isFormComplete
-                  ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 hover:scale-105 active:scale-95 shadow-zinc-900/20"
-                  : "bg-zinc-300 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-500 opacity-50 cursor-not-allowed"
-              )}
-            >
-              Siguiente
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          </div>
         </motion.div>
 
         {/* Botón oculto requerido por el sistema de automatización DentaxyFormPanel */}

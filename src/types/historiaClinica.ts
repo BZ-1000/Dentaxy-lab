@@ -196,23 +196,31 @@ export interface AntecedentesQuirurgicos {
   complicacionesAnestesicas: string;
   tratamientoReciente?: boolean;
   motivoTratamiento?: string;
+  medicamentosTratamientoReciente?: string;
   hospitalizacionReciente?: boolean;
   motivoHospitalizacion?: string;
+  complicacionHospitalizacionReciente?: boolean;
+  especificacionComplicacionHospitalizacion?: string;
   tomaMedicamentos?: boolean;
   cualesMedicamentos?: string;
   motivoMedicamentos?: string;
 }
 
 export interface AntecedentesHemorragicos {
-  sinHemorragicos: boolean;
-  sangradoProlongado: string;
-  hematomas: string;
-  hemorragiasEspontaneas: string;
-  transfusiones: string;
-  detallesAdicionales: string;
+  sinHemorragicos?: boolean;
+  sangradoProlongado?: boolean | string;
+  especificacionSangradoProlongado?: string;
+  hematomas?: boolean | string;
+  especificacionHematomas?: string;
+  hemorragiasEspontaneas?: boolean | string;
+  especificacionHemorragiasEspontaneas?: string;
+  transfusiones?: string;
+  detallesAdicionales?: string;
   transfusionPrevia?: boolean;
   motivoTransfusion?: string;
   fechaTransfusion?: string;
+  coagulopatia?: boolean;
+  especificacionCoagulopatia?: string;
 }
 
 export interface AntecedentesGinecoObstetricos {

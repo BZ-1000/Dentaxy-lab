@@ -340,96 +340,25 @@ export default function SeedCarousel({
                   transform: 'translate3d(0, 0, 12px)',
                 }}
               >
-                {isEmptyCard ? (
-                  <div className="w-full h-full flex flex-col justify-between text-left p-0.5">
-                    {/* Header de Ficha Vacía */}
-                    <div className="flex items-center justify-between border-b border-slate-200/80 pb-1">
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-2 h-2 rounded-full bg-amber-400"></div>
-                        <span className="text-[9px] font-black tracking-[0.15em] text-slate-700 uppercase font-mono">DENTAXY SEED • FICHA CLÍNICA</span>
-                      </div>
-                      <span className="text-[7.5px] font-mono font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
-                        DISPONIBLE
-                      </span>
-                    </div>
-
-                    {/* Contenido Ficha Vacía */}
-                    <div className="flex-1 flex flex-col justify-center items-center text-center px-2 py-1">
-                      <div className="w-7 h-7 rounded-full bg-emerald-50 flex items-center justify-center border border-emerald-100 mb-1">
-                        <FolderOpen size={14} className="text-emerald-600" />
-                      </div>
-                      <h4 className="text-slate-800 font-extrabold text-[12px] tracking-wide">Expediente Vacío</h4>
-                      <p className="text-slate-500 text-[8.5px] max-w-[200px] leading-tight">
-                        Apertura una nueva historia clínica digital en Google Drive
-                      </p>
-                    </div>
-
-                    {/* Footer Ficha Vacía */}
-                    <div className="border-t border-slate-200/60 pt-1 flex items-center justify-between text-[7.5px] text-emerald-600 font-mono font-bold">
-                      <span>STATUS: PENDIENTE REGISTRO</span>
-                      <span>+ AGREGAR PACIENTE</span>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="w-full h-full flex flex-col justify-between text-left p-0.5">
-                    {/* Header Expediente Paciente */}
-                    <div className="flex items-center justify-between border-b border-slate-200/80 pb-1">
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                        <span className="text-[9px] font-black tracking-[0.15em] text-slate-700 uppercase font-mono">HISTORIA CLÍNICA • DENTAXY</span>
-                      </div>
-                      <span className="text-[7.5px] font-mono font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-                        #{card.id ? card.id.substring(0, 6).toUpperCase() : 'DX-2026'}
-                      </span>
-                    </div>
-
-                    {/* Datos del Paciente */}
-                    <div className="flex-1 flex flex-col justify-center space-y-1 my-0.5">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[12px] font-black text-slate-900 tracking-tight line-clamp-1">
-                          {title}
-                        </span>
-                      </div>
-
-                      {/* Info grid */}
-                      <div className="grid grid-cols-2 gap-1 text-[8.5px]">
-                        <div className="bg-slate-100/70 p-1 rounded border border-slate-200/60">
-                          <span className="text-[7px] text-slate-400 font-bold block uppercase font-mono leading-none mb-0.5">MOTIVO CONSULTA</span>
-                          <span className="font-bold text-slate-800 truncate block leading-tight">
-                            {card.appProperties?.motivo || 'Valoración inicial'}
-                          </span>
-                        </div>
-                        <div className="bg-slate-100/70 p-1 rounded border border-slate-200/60">
-                          <span className="text-[7px] text-slate-400 font-bold block uppercase font-mono leading-none mb-0.5">TELÉFONO</span>
-                          <span className="font-bold text-slate-800 truncate block leading-tight">
-                            {card.appProperties?.telefono || 'Sin registro'}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Odontograma & Alergias */}
-                      <div className="flex items-center justify-between text-[8px] pt-0.5">
-                        <span className="inline-flex items-center gap-1 text-slate-700 font-bold">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                          Odontograma Activo
-                        </span>
-                        <span className={`px-1.5 py-0.5 rounded text-[7.5px] font-bold ${
-                          card.appProperties?.alergias && card.appProperties.alergias.toLowerCase() !== 'ninguna'
-                            ? 'bg-amber-100 text-amber-800 border border-amber-300'
-                            : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
-                        }`}>
-                          {card.appProperties?.alergias && card.appProperties.alergias.toLowerCase() !== 'ninguna' ? '⚠️ Alergias' : 'Sin Alergias'}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Footer Expediente */}
-                    <div className="border-t border-slate-200/60 pt-1 flex items-center justify-between text-[7.5px] text-slate-400 font-mono">
-                      <span>REGISTRO: {subTitle.replace('Creado el ', '')}</span>
-                      <span className="text-emerald-600 font-bold">DENTAXY SEED AI</span>
-                    </div>
-                  </div>
-                )}
+                {/* Hoja en blanco limpia con branding DENTAXY TECHNOLOGIES */}
+                <div className={`w-full h-full flex flex-col justify-center p-2 ${
+                  isActive 
+                    ? 'items-center text-center' 
+                    : 'items-start text-left pl-3 sm:pl-5'
+                }`}>
+                  <h3
+                    className="text-[22px] sm:text-[26px] font-black text-slate-900 tracking-tighter leading-none uppercase select-none"
+                    style={{ fontFamily: "'Bruno Ace SC', sans-serif" }}
+                  >
+                    DENTAXY
+                  </h3>
+                  <p
+                    className="text-[10px] sm:text-[11.5px] tracking-[0.35em] uppercase text-slate-500 font-bold mt-1.5 select-none"
+                    style={{ fontFamily: "'Bruno Ace SC', sans-serif" }}
+                  >
+                    TECHNOLOGIES
+                  </p>
+                </div>
               </div>
 
               {/* Lomo Físico */}

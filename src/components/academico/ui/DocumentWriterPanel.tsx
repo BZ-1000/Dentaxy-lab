@@ -34,6 +34,21 @@ export const DocumentWriterPanel: React.FC<DocumentWriterPanelProps> = ({
   const isMobile = useIsMobile();
   // Datos reactivos del paciente
   const nombrePaciente = formData?.datosGenerales?.nombreCompleto || '______________________';
+  const edadPaciente = formData?.datosGenerales?.fechaNacimiento ? `${formData.datosGenerales.fechaNacimiento} años` : '—';
+  const sexoPaciente = formData?.datosGenerales?.sexo || '—';
+  const telefonoPaciente = formData?.datosGenerales?.telefono || '—';
+  const tipoTratamientoRaw = (formData?.datosGenerales as any)?.tipoTratamiento || '';
+  const tratamientoObj = [
+    { label: 'Integral', value: 'integral' },
+    { label: 'Exodoncia', value: 'exodoncia' },
+    { label: 'Endodoncia', value: 'endodoncia' },
+    { label: 'Ortodoncia', value: 'ortodoncia' },
+    { label: 'Periodoncia', value: 'periodoncia' },
+    { label: 'Estética', value: 'estetica' },
+    { label: 'Implante', value: 'implante' },
+    { label: 'Preventivo', value: 'preventivo' },
+  ].find(t => t.value === tipoTratamientoRaw);
+  const tratamientoLabel = tratamientoObj ? tratamientoObj.label : (tipoTratamientoRaw || '—');
   
   // Fecha actual formateada
   const today = new Date();
@@ -210,31 +225,126 @@ export const DocumentWriterPanel: React.FC<DocumentWriterPanelProps> = ({
               </a>
             </div>
 
-            {/* Meta Strip — Con marco gris redondeado sin franjas extra */}
-            <div className="mt-6 grid grid-cols-2 md:grid-cols-4 border-2 border-slate-200/80 rounded-2xl overflow-hidden bg-slate-50/50">
-              <div className="p-3 px-4 border-r border-slate-200/60">
-                <div className="font-mono text-[9px] font-semibold tracking-[0.14em] uppercase text-zinc-400 mb-1">Folio</div>
-                <div className="text-[13px] font-bold text-zinc-800">EXP-2026-001</div>
-              </div>
-              <div className="p-3 px-4 border-r border-slate-200/60">
-                <div className="font-mono text-[9px] font-semibold tracking-[0.14em] uppercase text-zinc-400 mb-1">Fecha</div>
-                <div className="text-[13px] font-bold text-zinc-800">{fechaHoy}</div>
-              </div>
-              <div className="p-3 px-4 border-r border-slate-200/60">
-                <div className="font-mono text-[9px] font-semibold tracking-[0.14em] uppercase text-zinc-400 mb-1">Paciente</div>
-                <div className="text-[13px] font-bold text-zinc-800 uppercase truncate" title={nombrePaciente}>{nombrePaciente}</div>
-              </div>
-              <div className="p-3 px-4">
-                <div className="font-mono text-[9px] font-semibold tracking-[0.14em] uppercase text-zinc-400 mb-1">Estatus</div>
-                <div className={cn(
-                  "text-[12px] font-bold tracking-wide flex items-center gap-1.5",
-                  statusActivo ? "text-emerald-500" : "text-zinc-400"
-                )}>
-                  {statusActivo && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_2px_rgba(52,211,153,0.7)]" />
-                  )}
-                  {statusText}
+            {/* BLOQUE DE DATOS GENERALES DEL PACIENTE */}
+            <div className="mt-6 border border-zinc-800 rounded-2xl overflow-hidden shadow-lg bg-zinc-950 text-left">
+              {/* Cabecera Negra Elegante con Subtítulo "DATOS GENERALES DEL PACIENTE" */}
+              <div className="bg-zinc-900 px-4 py-2.5 flex items-center justify-between border-b border-zinc-800">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_2px_rgba(52,211,153,0.8)]" />
+                  <span className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-400">
+                    01
+                  </span>
+                  <h2 className="text-[12px] font-extrabold tracking-[0.12em] uppercase text-white font-sans m-0">
+                    Datos Generales del Paciente
+                  </h2>
                 </div>
+                <div className="flex items-center gap-2">
+                  <span className="hidden sm:inline-block font-mono text-[9.5px] uppercase tracking-widest text-zinc-400 bg-zinc-950 border border-zinc-800 px-2.5 py-0.5 rounded-full font-semibold">
+                    EXPEDIENTE CLÍNICO
+                  </span>
+                </div>
+              </div>
+
+              {/* Grid Responsiva de Datos - Toda la Tabla en Negro Elegante (High Contrast) */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-zinc-800/80 p-px">
+                {/* FOLIO */}
+                <div className="p-3 px-4 bg-zinc-950 text-white flex flex-col justify-between">
+                  <div className="font-mono text-[9px] font-bold tracking-[0.16em] uppercase text-zinc-400 mb-1">
+                    Folio
+                  </div>
+                  <div>
+                    <span className="inline-flex items-center font-mono text-[12px] font-extrabold tracking-wider bg-zinc-900 text-emerald-400 px-2.5 py-1 rounded-md border border-emerald-500/30 shadow-inner">
+                      EXP-2026-001
+                    </span>
+                  </div>
+                </div>
+
+                {/* FECHA */}
+                <div className="p-3 px-4 bg-zinc-950 text-white flex flex-col justify-between">
+                  <div className="font-mono text-[9px] font-bold tracking-[0.14em] uppercase text-zinc-400 mb-1">
+                    Fecha
+                  </div>
+                  <div className="text-[13px] font-bold text-zinc-100 font-mono tracking-tight">
+                    {fechaHoy}
+                  </div>
+                </div>
+
+                {/* PACIENTE / INICIALES */}
+                <div className="p-3 px-4 bg-zinc-950 text-white flex flex-col justify-between">
+                  <div className="font-mono text-[9px] font-bold tracking-[0.14em] uppercase text-zinc-400 mb-1">
+                    Paciente / Iniciales
+                  </div>
+                  <div className="text-[13px] font-black text-white uppercase truncate" title={nombrePaciente}>
+                    {nombrePaciente}
+                  </div>
+                </div>
+
+                {/* ESTATUS */}
+                <div className="p-3 px-4 bg-zinc-950 text-white flex flex-col justify-between">
+                  <div className="font-mono text-[9px] font-bold tracking-[0.14em] uppercase text-zinc-400 mb-1">
+                    Estatus
+                  </div>
+                  <div>
+                    <span className={cn(
+                      "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-extrabold tracking-wider uppercase border",
+                      statusActivo 
+                        ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" 
+                        : "bg-zinc-900 text-zinc-400 border-zinc-800"
+                    )}>
+                      {statusActivo && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_2px_rgba(52,211,153,0.7)]" />
+                      )}
+                      {statusText}
+                    </span>
+                  </div>
+                </div>
+
+                {/* EDAD */}
+                <div className="p-3 px-4 bg-zinc-950 text-white flex flex-col justify-between">
+                  <div className="font-mono text-[9px] font-bold tracking-[0.14em] uppercase text-zinc-400 mb-1">
+                    Edad
+                  </div>
+                  <div>
+                    <span className="inline-block text-[12px] font-extrabold text-zinc-200 bg-zinc-900 px-2.5 py-0.5 rounded-md border border-zinc-800">
+                      {edadPaciente}
+                    </span>
+                  </div>
+                </div>
+
+                {/* SEXO BIOLÓGICO */}
+                <div className="p-3 px-4 bg-zinc-950 text-white flex flex-col justify-between">
+                  <div className="font-mono text-[9px] font-bold tracking-[0.14em] uppercase text-zinc-400 mb-1">
+                    Sexo Biológico
+                  </div>
+                  <div>
+                    <span className="inline-block text-[12px] font-extrabold text-zinc-200 bg-zinc-900 px-2.5 py-0.5 rounded-md border border-zinc-800 capitalize">
+                      {sexoPaciente}
+                    </span>
+                  </div>
+                </div>
+
+                {/* TELÉFONO */}
+                <div className="p-3 px-4 bg-zinc-950 text-white flex flex-col justify-between">
+                  <div className="font-mono text-[9px] font-bold tracking-[0.14em] uppercase text-zinc-400 mb-1">
+                    Teléfono
+                  </div>
+                  <div className="text-[13px] font-bold text-zinc-100 font-mono tracking-wide">
+                    {telefonoPaciente}
+                  </div>
+                </div>
+
+                {/* TRATAMIENTO */}
+                <div className="p-3 px-4 bg-zinc-950 text-white flex flex-col justify-between">
+                  <div className="font-mono text-[9px] font-bold tracking-[0.14em] uppercase text-zinc-400 mb-1">
+                    Tratamiento
+                  </div>
+                  <div>
+                    <span className="inline-block text-[11px] font-extrabold text-amber-300 bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/20 truncate max-w-full" title={tratamientoLabel}>
+                      {tratamientoLabel}
+                    </span>
+                  </div>
+                </div>
+
               </div>
             </div>
           </header>
@@ -247,6 +357,7 @@ export const DocumentWriterPanel: React.FC<DocumentWriterPanelProps> = ({
           ) : (
             <div className="space-y-10">
               {seccionesActivas.map(seccion => {
+                if (seccion.id === 'datosGenerales') return null;
                 const content = generations[seccion.id];
                 if (!content) return null;
 

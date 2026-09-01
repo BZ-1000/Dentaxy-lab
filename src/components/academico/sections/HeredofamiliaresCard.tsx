@@ -7,6 +7,10 @@ interface HeredofamiliaresCardProps {
     handleCondicionChange: any;
     onSeccionGenerada: (seccionId: string, contenido: string) => void;
     onToggleViewMode?: () => void;
+    onSectionComplete?: () => void;
+    microStep?: number;
+    onMicroStepChange?: (step: number) => void;
+    onTotalMicroStepsChange?: (total: number, names: string[]) => void;
 }
 
 export const HeredofamiliaresCard: React.FC<HeredofamiliaresCardProps> = ({
@@ -15,6 +19,10 @@ export const HeredofamiliaresCard: React.FC<HeredofamiliaresCardProps> = ({
     handleCondicionChange,
     onSeccionGenerada,
     onToggleViewMode,
+    onSectionComplete,
+    microStep,
+    onMicroStepChange,
+    onTotalMicroStepsChange,
 }) => {
     return (
         <div className="w-full bg-transparent">
@@ -26,6 +34,10 @@ export const HeredofamiliaresCard: React.FC<HeredofamiliaresCardProps> = ({
                         handleCondicionChange={handleCondicionChange}
                         onRedaccionGenerada={(content: string) => onSeccionGenerada('heredofamiliares', content)}
                         onToggleViewMode={onToggleViewMode}
+                        onSectionComplete={onSectionComplete}
+                        microStep={microStep}
+                        onMicroStepChange={onMicroStepChange}
+                        onTotalMicroStepsChange={onTotalMicroStepsChange}
                     />
                 </div>
             </div>

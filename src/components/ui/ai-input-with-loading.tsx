@@ -1,4 +1,4 @@
-import { Mic } from "lucide-react";
+import { Mic, ChevronDown, ChevronUp } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
@@ -22,6 +22,8 @@ interface AIInputWithLoadingProps {
     protectedPrefix?: string;
     /** Sugerencias de completado específicas para el contexto del campo */
     contextSuggestions?: string[];
+    /** Elemento de sugerencia personalizado para colocar al inicio de la lista de completado */
+    renderCustomFirstSuggestion?: React.ReactNode;
 }
 
 export function AIInputWithLoading({
@@ -36,10 +38,13 @@ export function AIInputWithLoading({
     starterPhrases = [],
     suggestions = [],
     protectedPrefix,
-    contextSuggestions = []
+    contextSuggestions = [],
+    renderCustomFirstSuggestion
 }: AIInputWithLoadingProps) {
     // Use internal state if value is not provided (uncontrolled mode), otherwise sync with prop
     const [internalValue, setInternalValue] = useState(value || "");
+    const [showAllStarters, setShowAllStarters] = useState(false);
+    const [showAllSuggestions, setShowAllSuggestions] = useState(false);
 
     // Voice Recognition Logic
     const [isRecording, setIsRecording] = useState(false);
@@ -240,12 +245,12 @@ export function AIInputWithLoading({
         }
     };
 
-    // Si hay contextSuggestions específicas, usarlas en lugar de la base de datos genérica
-    const activeSuggestions = contextSuggestions.length > 0 ? contextSuggestions : getFilteredSuggestions(valStr);
+    // Si se pasa la prop contextSuggestions, usarla estrictamente. No caer al fallback genérico si fue provista.
+    const activeSuggestions = contextSuggestions !== undefined ? contextSuggestions : getFilteredSuggestions(valStr);
     const showStarters = (valStr === "" || starterPhrases.some(p => p.trim() === valStr.trim())) && starterPhrases.length > 0;
     // Con contextSuggestions: mostrar siempre (incluso cuando el valor es solo el prefijo)
     // Sin contextSuggestions: mostrar solo cuando hay texto más allá del prefijo
-    const showContextSuggestionsAlways = contextSuggestions.length > 0;
+    const showContextSuggestionsAlways = activeSuggestions.length > 0;
     const hasContentBeyondPrefix = protectedPrefix ? valStr.length > protectedPrefix.length : valStr !== "";
     const showSuggestionsList = !showStarters && activeSuggestions.length > 0 && (showContextSuggestionsAlways || hasContentBeyondPrefix);
 
@@ -256,10 +261,11 @@ export function AIInputWithLoading({
                     id={id}
                     placeholder={placeholder}
                     className={cn(
-                        "w-full pl-2 pr-14 py-4 text-xl font-medium resize-none leading-relaxed",
-                        "bg-transparent border-0 shadow-none focus-visible:ring-0 focus:ring-0 outline-none",
+                        "w-full pl-5 pr-14 py-4 text-xl font-medium resize-none leading-relaxed",
+                        "bg-white dark:bg-zinc-900 border-2 border-zinc-200 dark:border-zinc-700 rounded-3xl",
+                        "transition-all duration-200 outline-none focus:outline-none focus:border-zinc-900 dark:focus:border-white focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none",
                         "placeholder:text-zinc-400 dark:placeholder:text-zinc-500",
-                        "text-zinc-900 dark:text-zinc-100",
+                        "text-zinc-900 dark:text-zinc-100 shadow-sm",
                         className
                     )}
                     style={{ minHeight: `${minHeight}px` }}
@@ -275,10 +281,10 @@ export function AIInputWithLoading({
                     <button
                         onClick={toggleRecording}
                         className={cn(
-                            "rounded-full p-2.5 transition-all duration-300 flex items-center justify-center",
+                            "rounded-full p-2.5 transition-all duration-300 flex items-center justify-center border border-zinc-200 dark:border-zinc-700 shadow-sm",
                             isRecording
-                                ? "bg-red-50 text-red-500 scale-110 shadow-sm"
-                                : "text-gray-400 hover:text-black hover:bg-black/5 dark:hover:bg-white/10"
+                                ? "bg-red-50 text-red-500 scale-110 shadow-md border-red-200"
+                                : "bg-zinc-50 text-zinc-500 hover:text-black hover:bg-zinc-100 dark:bg-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-600"
                         )}
                         type="button"
                         title={isRecording ? "Detener grabación" : "Iniciar dictado"}
@@ -291,10 +297,10 @@ export function AIInputWithLoading({
             {/* Píldoras de Recomendación Inteligente (Starter Phrases) */}
             {showStarters && (
                 <div
-                    className="mt-3 flex flex-wrap gap-2 px-2 animate-in fade-in duration-300"
+                    className="mt-3 flex flex-wrap gap-3 px-2 animate-in fade-in duration-300 items-center"
                 >
-                    <span className="text-sm font-bold text-zinc-400 dark:text-zinc-500 self-center uppercase tracking-widest mr-1">Iniciar frase:</span>
-                    {starterPhrases.map((phrase) => {
+                    <span className="text-xs font-black text-zinc-400 dark:text-zinc-500 self-center uppercase tracking-widest mr-1">Iniciar frase:</span>
+                    {(showAllStarters ? starterPhrases : starterPhrases.slice(0, 5)).map((phrase) => {
                         const isSelected = valStr.startsWith(phrase);
                         return (
                             <button
@@ -305,38 +311,90 @@ export function AIInputWithLoading({
                                     handleSelectPhrase(phrase);
                                 }}
                                 className={cn(
-                                    "text-sm font-semibold px-5 py-2.5 rounded-full backdrop-blur-md shadow-sm border transition-all duration-300 hover:scale-105",
+                                    "text-sm px-5 py-2.5 rounded-full transition-all duration-300 cursor-pointer flex items-center gap-1.5",
                                     isSelected
-                                        ? "bg-zinc-900 text-white border-transparent dark:bg-white dark:text-zinc-900"
-                                        : "bg-blue-50/80 border-blue-200 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/40 dark:border-blue-800 dark:text-blue-200 dark:hover:bg-blue-800/60"
-                                )}
+                                        ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 border border-zinc-900 dark:border-white shadow-[inset_3px_3px_6px_rgba(0,0,0,0.4)] font-bold scale-[0.98]"
+                                        : "bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 border border-zinc-300 dark:border-zinc-700 shadow-[4px_4px_10px_rgba(0,0,0,0.09),-3px_-3px_8px_rgba(255,255,255,1)] dark:shadow-[4px_4px_10px_rgba(0,0,0,0.5),-3px_-3px_8px_rgba(255,255,255,0.05)] hover:border-zinc-400 hover:shadow-[6px_6px_14px_rgba(0,0,0,0.13),-4px_-4px_10px_rgba(255,255,255,1)] hover:scale-[1.02] active:scale-[0.97] active:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.1)] font-bold"
+                                )
+                            }
                             >
-                                {phrase.trim()}...
+                                {isSelected && <span className="text-xs font-black text-[#111113] dark:text-white">✓</span>}
+                                <span>{phrase.trim()}...</span>
                             </button>
                         );
                     })}
+                    {starterPhrases.length > 5 && (
+                        <button
+                            type="button"
+                            onClick={() => setShowAllStarters(!showAllStarters)}
+                            className="text-xs font-bold px-4 py-2.5 rounded-full bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 border border-zinc-300 dark:border-zinc-700 shadow-[4px_4px_10px_rgba(0,0,0,0.09),-3px_-3px_8px_rgba(255,255,255,1)] hover:border-zinc-400 hover:scale-[1.02] active:scale-[0.97] transition-all duration-300 flex items-center gap-1.5 cursor-pointer"
+                        >
+                            {showAllStarters ? (
+                                <>
+                                    <span>Ver menos</span>
+                                    <ChevronUp className="w-3.5 h-3.5" />
+                                </>
+                            ) : (
+                                <>
+                                    <span>+{starterPhrases.length - 5} más</span>
+                                    <ChevronDown className="w-3.5 h-3.5" />
+                                </>
+                            )}
+                        </button>
+                    )}
                 </div>
             )}
 
             {/* Sugerencias de Autocompletado contextuales */}
-            {showSuggestionsList && (
+            {(showSuggestionsList || renderCustomFirstSuggestion) && (
                 <div
-                    className="mt-3 flex flex-wrap gap-2 px-2 animate-in fade-in duration-300"
+                    className="mt-3 flex flex-wrap gap-3 px-2 animate-in fade-in duration-300 items-center"
                 >
-                    <span className="text-sm font-bold text-zinc-400 dark:text-zinc-500 self-center uppercase tracking-widest mr-1">Completar:</span>
-                    {activeSuggestions.map((suggestion) => (
+                    <span className="text-xs font-black text-zinc-400 dark:text-zinc-500 self-center uppercase tracking-widest mr-1">Completar:</span>
+                    {renderCustomFirstSuggestion}
+                    {showSuggestionsList && (
+                        (showAllSuggestions ? activeSuggestions : activeSuggestions.slice(0, 5)).map((suggestion) => {
+                            const isSuggestionSelected = valStr.toLowerCase().includes(suggestion.toLowerCase());
+                            return (
+                                <button
+                                    key={suggestion}
+                                    type="button"
+                                    onMouseDown={(e) => {
+                                        e.preventDefault();
+                                        handleSelectSuggestion(suggestion);
+                                    }}
+                                    className={cn(
+                                        "text-sm px-5 py-2.5 rounded-full transition-all duration-300 cursor-pointer flex items-center gap-1.5",
+                                        isSuggestionSelected
+                                            ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 border border-zinc-900 dark:border-white shadow-[inset_3px_3px_6px_rgba(0,0,0,0.4)] font-bold scale-[0.98]"
+                                            : "bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 border border-zinc-300 dark:border-zinc-700 shadow-[4px_4px_10px_rgba(0,0,0,0.09),-3px_-3px_8px_rgba(255,255,255,1)] dark:shadow-[4px_4px_10px_rgba(0,0,0,0.5),-3px_-3px_8px_rgba(255,255,255,0.05)] hover:border-zinc-400 hover:shadow-[6px_6px_14px_rgba(0,0,0,0.13),-4px_-4px_10px_rgba(255,255,255,1)] hover:scale-[1.02] active:scale-[0.97] active:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.1)] font-bold"
+                                    )}
+                                >
+                                    {isSuggestionSelected ? <span className="text-xs font-black text-[#111113] dark:text-white">✓</span> : <span>+</span>}
+                                    <span>{suggestion}</span>
+                                </button>
+                            );
+                        })
+                    )}
+                    {showSuggestionsList && activeSuggestions.length > 5 && (
                         <button
-                            key={suggestion}
                             type="button"
-                            onMouseDown={(e) => {
-                                e.preventDefault();
-                                handleSelectSuggestion(suggestion);
-                            }}
-                            className="text-sm font-semibold px-5 py-2.5 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-800 hover:bg-emerald-200 dark:bg-emerald-900/40 dark:border-emerald-700 dark:text-emerald-200 transition-all duration-300 hover:scale-105 shadow-sm"
+                            onClick={() => setShowAllSuggestions(!showAllSuggestions)}
+                            className="text-xs font-bold px-4 py-2.5 rounded-full bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 border border-zinc-300 dark:border-zinc-700 shadow-[4px_4px_10px_rgba(0,0,0,0.09),-3px_-3px_8px_rgba(255,255,255,1)] hover:border-zinc-400 hover:scale-[1.02] active:scale-[0.97] transition-all duration-300 flex items-center gap-1.5 cursor-pointer"
                         >
-                            + {suggestion}
+                            {showAllSuggestions ? (
+                                <>
+                                    <span>Ver menos</span>
+                                    <ChevronUp className="w-3.5 h-3.5" />
+                                </>
+                            ) : (
+                                <>
+                                    <span>+{activeSuggestions.length - 5} más</span>
+                                    <ChevronDown className="w-3.5 h-3.5" />
+                                </>
+                            )}
                         </button>
-                    ))}
+                    )}
                 </div>
             )}
         </div>

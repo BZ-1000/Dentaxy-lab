@@ -44,6 +44,8 @@ import { toast } from "sonner";
 import { DENTAXY_ACADEMY_VERSION } from "@/config/version";
 import { DentaxyFormPanel } from "@/components/academico/DentaxyFormPanel";
 import { AnalysisModeProvider } from "@/contexts/AnalysisModeContext";
+import { useDexThemeStore } from "@/store/useDexThemeStore";
+import { DexThemeCustomizerCard } from "@/components/theme/DexThemeCustomizerCard";
 
 // ─── MENÚ ORBITAL LÍQUIDO 3D — CAPACIDADES DE DEX IA ─────────────────────────
 const DEX_ORBITAL_CAPABILITIES = [
@@ -129,6 +131,16 @@ const DEX_ORBITAL_CAPABILITIES = [
   },
 ];
 
+export type DexCapability = typeof DEX_ORBITAL_CAPABILITIES[0];
+
+// ─── TIPOS EXPLÍCITOS (Evita bug del lexer SWC con generics en TSX) ───
+// IMPORTANTE: Declarar TODOS los tipos aquí fuera para evitar que SWC los confunda con JSX.
+type DrawerTab = "mis-historias" | "compartidas";
+type DexMode = "app" | "web";
+type OrbTooltip = string | null;
+type TimeoutRef = ReturnType<typeof setTimeout> | null;
+type ActiveCap = DexCapability | null;
+
 // ─── HISTORIAL DE TRABAJOS CLÍNICOS REALIZADOS (DENTAXY ACADEMY UAZ) ─────────────
 const CLINICAL_WORK_HISTORY = [
   {
@@ -202,17 +214,71 @@ const CLINICAL_TEMPLATES_EXAMPLES = [
   },
 ];
 
+// Helper para computar estilos dinámicos de fondo
+const getBgStyles = (bgStyle: string) => {
+  let bgClassNames = "min-h-screen w-screen flex flex-col justify-between relative overflow-hidden select-none font-sans transition-colors duration-300 ";
+  let dotGridStyle: React.CSSProperties = {};
+
+  if (bgStyle === "dots-light") {
+    bgClassNames += "bg-slate-50 text-slate-900";
+    dotGridStyle = {
+      backgroundImage: "radial-gradient(circle, rgba(15, 23, 42, 0.12) 1.5px, transparent 1.5px)",
+      backgroundSize: "20px 20px",
+    };
+  } else if (bgStyle === "dots-dark") {
+    bgClassNames += "bg-slate-950 text-white";
+    dotGridStyle = {
+      backgroundImage: "radial-gradient(circle, rgba(255, 255, 255, 0.16) 1.5px, transparent 1.5px)",
+      backgroundSize: "20px 20px",
+    };
+  } else if (bgStyle === "gradient-dark") {
+    bgClassNames += "bg-gradient-to-b from-slate-950 via-slate-900 to-zinc-950 text-white";
+  } else if (bgStyle === "solid-dark") {
+    bgClassNames += "bg-slate-950 text-white";
+  } else {
+    bgClassNames += "bg-slate-50 text-slate-900";
+    dotGridStyle = {
+      backgroundImage: "radial-gradient(circle, rgba(15, 23, 42, 0.08) 1.5px, transparent 1.5px)",
+      backgroundSize: "24px 24px",
+    };
+  }
+
+  return { bgClassNames, dotGridStyle };
+};
+
+// Helper para formatear la sombra de resplandor (glow) sin expresiones anidadas complejas
+const formatGlowShadow = (inputGlowColor: string, glowIntensity: number, glowRadius: number) => {
+  const alpha = glowIntensity / 100;
+  let colorWithAlpha = inputGlowColor;
+  if (inputGlowColor.startsWith("rgba")) {
+    const lastComma = inputGlowColor.lastIndexOf(",");
+    if (lastComma !== -1) {
+      colorWithAlpha = inputGlowColor.substring(0, lastComma) + `, ${alpha})`;
+    }
+  } else if (inputGlowColor.startsWith("#")) {
+    const hex = inputGlowColor.substring(1);
+    if (hex.length === 6) {
+      const r = parseInt(hex.substring(0, 2), 16) || 0;
+      const g = parseInt(hex.substring(2, 4), 16) || 0;
+      const b = parseInt(hex.substring(4, 6), 16) || 0;
+      colorWithAlpha = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+  }
+  return `0 25px 60px rgba(0, 0, 0, 0.95), 0 0 ${glowRadius}px ${colorWithAlpha}, inset 0 1px 1.5px rgba(255, 255, 255, 0.15)`;
+};
+
 export const AcademyOrbInterface = () => {
   const navigate = useNavigate();
 
   // ─── Estado del Menú Circular Orbital Líquido 3D para DEX ───
   const [isOrbHovered, setIsOrbHovered] = useState(false);
-  const [activeOrbitalTooltip, setActiveOrbitalTooltip] = useState<string | null>(null);
-  const orbHoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // Tipos declarados externamente para evitar bug de lexer SWC con generics en TSX
+  const [activeOrbitalTooltip, setActiveOrbitalTooltip] = useState(null as OrbTooltip);
+  const orbHoverTimeoutRef = useRef(null as TimeoutRef);
 
   // ─── Estado del Menú Hamburguesa Lateral Estilo Stitch ───
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [drawerTab, setDrawerTab] = useState<"mis-historias" | "compartidas">("mis-historias");
+  const [drawerTab, setDrawerTab] = useState("mis-historias" as DrawerTab);
   const [searchQuery, setSearchQuery] = useState("");
 
   // ─── Estados de la Toolbar Superior Derecha (Estudiantes Academy) ───
@@ -220,7 +286,7 @@ export const AcademyOrbInterface = () => {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
 
   // Obtener usuario o mock de estudiante UAZ
-  const currentUser = useAuthStore((state) => state.user) || {
+  const currentUser = useAuthStore((state) => (state as any).user || state.doctor) || {
     name: "Dr. Alex Ramos",
     email: "alex.ramos.uaz@gmail.com",
     role: "Estudiante Odontología UAZ",
@@ -233,12 +299,31 @@ export const AcademyOrbInterface = () => {
 
   // ─── Estados de la Consola Stitch ───
   const [promptText, setPromptText] = useState("");
-  const [mode, setMode] = useState<"app" | "web">("web");
+  const [mode, setMode] = useState("web" as DexMode);
   const [model, setModel] = useState("3 Flash");
   const [showModelMenu, setShowModelMenu] = useState(false);
 
+  // ─── Estado del Personalizador de Tema Liquid Glass ───
+  const [isThemeCustomizerOpen, setIsThemeCustomizerOpen] = useState(false);
+
+  // ─── Store Persistente de Tema de Dex ───
+  const {
+    inputAccentColor,
+    inputGlowColor,
+    glowIntensity,
+    glowRadius,
+    bgStyle,
+    inputBgColor,
+    inputBorderColor,
+    caretColor,
+    textColor,
+    placeholderColor,
+  } = useDexThemeStore();
+
+  const computedGlowShadow = formatGlowShadow(inputGlowColor, glowIntensity, glowRadius);
+
   // ─── Estado Modo Activo: Al hacer clic en una píldora orbital, Dex se minimiza ───
-  const [activeCap, setActiveCap] = useState<typeof DEX_ORBITAL_CAPABILITIES[0] | null>(null);
+  const [activeCap, setActiveCap] = useState(null as ActiveCap);
 
   // ─── Título de la sección activa del panel de Historia Clínica (para el navbar) ───
   const [activeSectionTitle, setActiveSectionTitle] = useState('');
@@ -272,7 +357,7 @@ export const AcademyOrbInterface = () => {
   };
 
   // ─── Activar modo capacidad orbital: anima salida del orbe central + consola ───
-  const handleCapClick = (cap: typeof DEX_ORBITAL_CAPABILITIES[0]) => {
+  const handleCapClick = (cap: DexCapability) => {
     setIsOrbHovered(false);
     setActiveOrbitalTooltip(null);
     setActiveCap(cap);
@@ -284,15 +369,14 @@ export const AcademyOrbInterface = () => {
     setPromptText("");
   };
 
+  const { bgClassNames, dotGridStyle } = getBgStyles(bgStyle);
+
   return (
-    <div className="min-h-screen w-screen text-slate-900 flex flex-col justify-between relative overflow-hidden select-none font-sans bg-slate-50">
-      {/* ── MALLA DE FONDO TÉCNICA BASE ── */}
+    <div className={bgClassNames}>
+      {/* ── MALLA DE FONDO TÉCNICA BASE DINÁMICA ── */}
       <div
-        className="absolute inset-0 pointer-events-none z-0"
-        style={{
-          backgroundImage: "radial-gradient(circle, rgba(15, 23, 42, 0.07) 1.5px, transparent 1.5px)",
-          backgroundSize: "24px 24px",
-        }}
+        className="absolute inset-0 pointer-events-none z-0 transition-all duration-300"
+        style={dotGridStyle}
       />
 
       {/* ── HEADER SUPERIOR: Izquierda + Título Central + Suite Botones Derecha ── */}
@@ -393,7 +477,7 @@ export const AcademyOrbInterface = () => {
 
           {/* 3. Botón: Cursos & Aprendizaje */}
           <Link
-            to="/academy"
+            to="/academy/cursos"
             className="p-2 sm:p-2.5 rounded-xl text-slate-700 hover:text-indigo-700 hover:bg-indigo-50/80 border border-slate-200/80 bg-white/80 backdrop-blur-md shadow-sm transition-all cursor-pointer flex items-center justify-center group"
             title="Cursos & Guías Dentales"
           >
@@ -896,15 +980,16 @@ export const AcademyOrbInterface = () => {
         >
 
 
-          {/* Tarjeta Consola Principal Estilo Stitch - Negro Puro 100% (#000000) con Iluminación Estática */}
+          {/* Tarjeta Consola Principal Estilo Stitch - Dinámica con Personalizador de Tema */}
           <div
-            className="w-full rounded-[28px] p-4 sm:p-5 border border-zinc-800/80 flex flex-col justify-between min-h-[145px] gap-4 transition-all duration-300 relative cursor-text"
+            className="w-full rounded-[28px] p-4 sm:p-5 border flex flex-col justify-between min-h-[145px] gap-4 transition-all duration-300 relative cursor-text"
             style={{
-              backgroundColor: "#000000",
-              boxShadow: "0 25px 60px rgba(0, 0, 0, 0.95), 0 10px 30px rgba(0, 0, 0, 0.85), inset 0 1px 1.5px rgba(255, 255, 255, 0.15)",
+              backgroundColor: inputBgColor,
+              borderColor: inputBorderColor,
+              boxShadow: computedGlowShadow,
             }}
           >
-            {/* Input de Texto (Cursor / Slash Alineado y Diseñado con Caret Neón Púrpura) */}
+            {/* Input de Texto (Cursor / Slash Alineado y Diseñado con Caret Neón Personalizado) */}
             <input
               type="text"
               value={promptText}
@@ -915,13 +1000,14 @@ export const AcademyOrbInterface = () => {
                 if (e.key === "Enter") handleSendPrompt();
               }}
               placeholder="Pregunta a Dex o escribe una acción clínica..."
-              className="w-full h-9 leading-[36px] !bg-transparent !border-none !outline-none !shadow-none !ring-0 focus:!outline-none focus:!ring-0 focus:!border-none focus:!bg-transparent focus:!shadow-none text-white text-base font-normal placeholder-zinc-400/80 px-0 py-0 cursor-text"
+              className="w-full h-9 leading-[36px] !bg-transparent !border-none !outline-none !shadow-none !ring-0 focus:!outline-none focus:!ring-0 focus:!border-none focus:!bg-transparent focus:!shadow-none text-base font-normal px-0 py-0 cursor-text"
               style={{
                 background: "transparent",
                 border: "none",
                 outline: "none",
                 boxShadow: "none",
-                caretColor: "#c084fc",
+                color: textColor,
+                caretColor: caretColor,
                 height: "36px",
                 lineHeight: "36px",
               }}
@@ -964,12 +1050,15 @@ export const AcademyOrbInterface = () => {
 
               {/* Controles Derecha */}
               <div className="flex items-center gap-2.5 relative">
+                {/* Botón de Personalización de Tema Liquid Glass */}
                 <button
-                  onClick={() => toast.info("Cambiar paleta o tema")}
-                  className="p-1.5 text-zinc-400 hover:text-white transition-colors"
-                  title="Personalización de tema"
+                  onClick={() => setIsThemeCustomizerOpen(true)}
+                  className="p-2 rounded-full hover:bg-white/10 text-zinc-400 hover:text-white transition-all cursor-pointer relative group flex items-center justify-center"
+                  title="Personalización de Tema DEX"
                 >
-                  <Palette className="w-4 h-4" />
+                  <Palette className="w-4 h-4 transition-transform group-hover:scale-110" style={{ color: inputAccentColor }} />
+                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full animate-ping" style={{ backgroundColor: inputAccentColor }} />
+                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full" style={{ backgroundColor: inputAccentColor }} />
                 </button>
 
                 {/* Selector de Modelo AI (Estilo Oscuro Glossy) */}
@@ -1106,6 +1195,12 @@ export const AcademyOrbInterface = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* ── CARD LATERAL LIQUID GLASS: PERSONALIZADOR DE TEMA ── */}
+      <DexThemeCustomizerCard
+        isOpen={isThemeCustomizerOpen}
+        onClose={() => setIsThemeCustomizerOpen(false)}
+      />
     </div>
   );
 };

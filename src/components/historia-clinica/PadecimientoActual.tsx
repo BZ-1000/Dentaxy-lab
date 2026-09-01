@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { Button } from "@/components/ui/button";
-import { Eraser, ChevronRight, ChevronLeft, Calendar } from "lucide-react";
+import { ChevronRight, ChevronLeft, Calendar } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { AIInputWithLoading } from "@/components/ui/ai-input-with-loading";
@@ -58,9 +57,9 @@ const slideVariants = {
 
 // --- Glassmorphic UI Micro-Components ---
 
-const glassBtnBase = "rounded-3xl border transition-all duration-300 relative overflow-hidden backdrop-blur-md shadow-sm";
-const glassBtnInactive = "bg-white/80 border-white/80 text-zinc-800 hover:bg-white/90 dark:bg-zinc-800/60 dark:border-white/10 dark:text-zinc-200 dark:hover:bg-zinc-800/80";
-const glassBtnActive = "bg-zinc-900 text-white border-transparent shadow-[0_8px_30px_rgb(0,0,0,0.12)] scale-[1.02] dark:bg-white dark:text-zinc-900";
+const glassBtnBase = "rounded-3xl border-2 transition-all duration-300 relative overflow-hidden backdrop-blur-md";
+const glassBtnInactive = "bg-white dark:bg-zinc-800/90 border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-[5px_5px_15px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,1)] dark:shadow-[5px_5px_15px_rgba(0,0,0,0.5)] hover:border-zinc-400 hover:shadow-[7px_7px_18px_rgba(0,0,0,0.13),-5px_-5px_14px_rgba(255,255,255,1)] hover:scale-[1.01] active:scale-[0.99] active:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.1)]";
+const glassBtnActive = "bg-zinc-900 text-white border-zinc-900 shadow-[inset_4px_4px_10px_rgba(0,0,0,0.5),0_6px_20px_rgba(0,0,0,0.2)] scale-[1.01] dark:bg-white dark:text-zinc-900 dark:border-white";
 
 const ChipSelector = ({
   options,
@@ -109,6 +108,30 @@ const SubLabel = ({ children }: { children: React.ReactNode }) => (
   </label>
 );
 
+interface PadecimientoActualProps {
+  formData: any;
+  handlePadecimientoChange: (field: string, value: string) => void;
+  handleDolorChange: (field: string, value: any) => void;
+  handleSinSintomasChange: (checked: boolean) => void;
+  onRedaccionGenerada: (html: string) => void;
+  onToggleViewMode?: () => void;
+  onSectionComplete?: () => void;
+  microStep?: number;
+  onMicroStepChange?: (step: number) => void;
+  onTotalMicroStepsChange?: (total: number, names: string[]) => void;
+}
+
+const stepsDefinitions = [
+  { id: 0, nombre: "Motivo de Consulta" },
+  { id: 1, nombre: "Inicio del Padecimiento" },
+  { id: 2, nombre: "Condición de Aparición" },
+  { id: 3, nombre: "Causa Específica" },
+  { id: 4, nombre: "Frecuencia" },
+  { id: 5, nombre: "Naturaleza del Dolor" },
+  { id: 6, nombre: "Tipo de Localización" },
+  { id: 7, nombre: "Atenuación" }
+];
+
 const PadecimientoActual = ({
   formData,
   handlePadecimientoChange,
@@ -116,23 +139,31 @@ const PadecimientoActual = ({
   handleSinSintomasChange,
   onRedaccionGenerada,
   onSectionComplete,
+  microStep = 0,
+  onMicroStepChange,
+  onTotalMicroStepsChange,
 }: PadecimientoActualProps) => {
   const { toast } = useToast();
   const defaultMotivoConsulta = "El paciente acude a consulta por ";
   const defaultLocalizacion = "Localizado en ";
   const defaultCausaProvocado = "Provocado con ";
 
-  const [currentMicroStep, setCurrentMicroStep] = useState(0);
   const [dir, setDir] = useState(1);
   const [tieneAlivio, setTieneAlivio] = useState<boolean | null>(null);
   const [showToothPicker, setShowToothPicker] = useState(false);
 
   const motivoValue = formData.padecimientoActual.motivoConsulta;
 
-  // Al entrar al step 7, resetear tieneAlivio SOLO si no hay valor de atenuación guardado.
+  const autoAdvance = (delay = 250) => {
+    setTimeout(() => {
+      onMicroStepChange?.(microStep + 1);
+    }, delay);
+  };
+
+  // Al entrar al step 7 (Atenuación), resetear tieneAlivio SOLO si no hay valor de atenuación guardado.
   // NUNCA auto-establecer tieneAlivio=true desde un useEffect — solo el clic del usuario debe hacerlo.
   useEffect(() => {
-    if (currentMicroStep === 7) {
+    if (seq[microStep] === 7) {
       // Si llegamos al step 7 y tieneAlivio está en null (estado inicial), lo dejamos en null
       // para que el usuario vea la pregunta. Solo si el usuario ya eligió antes y hay texto, lo mantenemos.
       const hayAtenuacionGuardada = !!(formData.padecimientoActual.dolor.atenuacion?.trim());
@@ -144,7 +175,7 @@ const PadecimientoActual = ({
         setTieneAlivio(true);
       }
     }
-  }, [currentMicroStep]);
+  }, [microStep]);
 
   // Initialize default value if empty
   useEffect(() => {
@@ -172,16 +203,28 @@ const PadecimientoActual = ({
   };
 
   const seq = getStepsSequence();
-  const isLastStep = seq.indexOf(currentMicroStep) === seq.length - 1;
+  // currentMicroStep is now controlled by the parent, but it points to the raw step ID.
+  // We need to map the raw IDs to a linear sequence 0 to N-1 for the parent.
+  // Wait, no. If parent just passes activeMicroStep from 0 to N-1, we map it to seq[activeMicroStep]
+  const currentMicroStepId = seq[microStep] ?? seq[0];
+  const isLastStep = microStep === seq.length - 1;
+
+  useEffect(() => {
+    if (onTotalMicroStepsChange) {
+      const names = seq.map(id => stepsDefinitions.find(s => s.id === id)?.nombre || `Paso ${id}`);
+      onTotalMicroStepsChange(seq.length, names);
+    }
+  }, [seq.length]);
 
   // Limpieza y generación determinista del texto de redacción
-  const generarTextoRedaccion = () => {
+  const generarTextoRedaccion = (overrideSinSintomas?: boolean) => {
+    const isSinSintomas = overrideSinSintomas !== undefined ? overrideSinSintomas : formData.padecimientoActual.sinSintomas;
     const motivo = formData.padecimientoActual.motivoConsulta || "No especificado";
     const d = formData.padecimientoActual.dolor;
 
     let historyText = "";
 
-    if (formData.padecimientoActual.sinSintomas) {
+    if (isSinSintomas) {
       historyText = "El paciente refiere encontrarse asintomático al momento de la consulta, negando dolor o molestia alguna.";
     } else {
       let sentences = [];
@@ -207,7 +250,7 @@ const PadecimientoActual = ({
       const carac = d.caracter?.toLowerCase() || "no especificado";
       const intens = d.intensidad?.toLowerCase() || "moderada";
 
-      sentences.push(`El dolor se manifiesta con una frecuencia ${freq} de carácter ${carac} e intensidad ${intens}.`);
+      sentences.push(`El dolor se manifests con una frecuencia ${freq} de carácter ${carac} e intensidad ${intens}.`);
 
       if (d.localizacion?.descripcion) {
         const tipo = d.localizacion.tipo;
@@ -224,6 +267,8 @@ const PadecimientoActual = ({
       if (d.atenuacion) {
         const aten = d.atenuacion.replace(/^(cede con|disminuye con|con|por|al) /gi, "").trim();
         sentences.push(`El paciente reporta mejoría ante ${aten}.`);
+      } else if (tieneAlivio === false) {
+        sentences.push(`El paciente refiere que el dolor es persistente y no remite con ninguna maniobra ni tratamiento previo.`);
       }
 
       historyText = sentences.join(" ");
@@ -250,11 +295,12 @@ const PadecimientoActual = ({
     formData.padecimientoActual.dolor.ubicacion,
     formData.padecimientoActual.dolor.localizacion.tipo,
     formData.padecimientoActual.dolor.localizacion.descripcion,
-    formData.padecimientoActual.dolor.atenuacion
+    formData.padecimientoActual.dolor.atenuacion,
+    tieneAlivio
   ]);
 
-  const generarRedaccionYCompletar = () => {
-    const textoHTML = generarTextoRedaccion();
+  const generarRedaccionYCompletar = (overrideSinSintomas?: boolean) => {
+    const textoHTML = generarTextoRedaccion(overrideSinSintomas);
     if (onRedaccionGenerada) {
       onRedaccionGenerada(textoHTML);
     }
@@ -263,66 +309,16 @@ const PadecimientoActual = ({
       description: "La redacción de Padecimiento Actual se ha guardado correctamente.",
       duration: 1500,
     });
-    if (onSectionComplete) {
-      onSectionComplete();
-    }
-  };
-
-  const handleNext = () => {
-    if (currentMicroStep === 0) {
-      if (!motivoValue || motivoValue.trim().length < 3) {
-        toast({
-          title: "Motivo Requerido",
-          description: "Por favor escribe un motivo de consulta válido antes de continuar.",
-          variant: "destructive"
-        });
-        return;
+    setTimeout(() => {
+      if (onSectionComplete) {
+        onSectionComplete();
       }
-    }
-
-    setShowToothPicker(false);
-    const currentIndex = seq.indexOf(currentMicroStep);
-    if (currentIndex < seq.length - 1) {
-      setDir(1);
-      setCurrentMicroStep(seq[currentIndex + 1]);
-    } else {
-      generarRedaccionYCompletar();
-    }
-  };
-
-  const handlePrev = () => {
-    setShowToothPicker(false);
-    const currentIndex = seq.indexOf(currentMicroStep);
-    if (currentIndex > 0) {
-      setDir(-1);
-      setCurrentMicroStep(seq[currentIndex - 1]);
-    }
-  };
-
-  const clearForm = () => {
-    handlePadecimientoChange("motivoConsulta", "");
-    handleSinSintomasChange(false);
-    handleDolorChange("fechaInicio", "");
-    handleDolorChange("condicionAparicion", "");
-    handleDolorChange("frecuencia", "");
-    handleDolorChange("caracter", "");
-    handleDolorChange("intensidad", "moderada");
-    handleDolorChange("causaProvocado", "");
-    handleDolorChange("ubicacion", "");
-    handleDolorChange("localizacion", { tipo: "", descripcion: "" });
-    handleDolorChange("atenuacion", "");
-    setCurrentMicroStep(0);
-    setDir(-1);
-    setTieneAlivio(null);
-    toast({
-      title: "Sección Reiniciada",
-      description: "Se han limpiado todas las respuestas de padecimiento actual."
-    });
+    }, 150);
   };
 
   const renderStepContent = () => {
     const d = formData.padecimientoActual.dolor;
-    switch (currentMicroStep) {
+    switch (currentMicroStepId) {
       case 0:
         return (
           <div key="step-0">
@@ -340,6 +336,21 @@ const PadecimientoActual = ({
                   "Se presenta a consulta por ",
                   "Refiere "
                 ]}
+                contextSuggestions={[
+                  "revisión general de rutina",
+                  "dolor intenso en una muela",
+                  "limpieza dental profesional (profilaxis)",
+                  "sangrado e inflamación de encías",
+                  "sensibilidad al frío y al calor",
+                  "caries en dientes frontales",
+                  "caída o fractura de una resina/restauración",
+                  "caída de una corona dental",
+                  "valoración para tratamiento de ortodoncia (brackets)",
+                  "molestia o dolor al masticar",
+                  "extracción de muela del juicio (tercer molar)",
+                  "diseño de sonrisa / blanqueamiento dental",
+                  "mal aliento (halitosis) constante"
+                ]}
               />
             </div>
           </div>
@@ -353,10 +364,7 @@ const PadecimientoActual = ({
               <button
                 onClick={() => {
                   handleSinSintomasChange(false);
-                  setTimeout(() => {
-                    setDir(1);
-                    setCurrentMicroStep(2);
-                  }, 250);
+                  onMicroStepChange?.(microStep + 1);
                 }}
                 className={cn(
                   glassBtnBase, "p-8 flex flex-col items-center justify-center gap-4 text-center",
@@ -372,9 +380,7 @@ const PadecimientoActual = ({
               <button
                 onClick={() => {
                   handleSinSintomasChange(true);
-                  setTimeout(() => {
-                    generarRedaccionYCompletar();
-                  }, 250);
+                  generarRedaccionYCompletar(true);
                 }}
                 className={cn(
                   glassBtnBase, "p-8 flex flex-col items-center justify-center gap-4 text-center",
@@ -390,7 +396,15 @@ const PadecimientoActual = ({
           </div>
         );
 
-      case 2:
+      case 2: {
+        const checkStep2Complete = (newFecha?: string, newCond?: string) => {
+          const fecha = newFecha !== undefined ? newFecha : d.fechaInicio;
+          const cond = newCond !== undefined ? newCond : d.condicionAparicion;
+          if (fecha && cond) {
+            autoAdvance(250);
+          }
+        };
+
         return (
           <div key="step-2">
             <Heading>¿Desde cuándo y cómo aparece?</Heading>
@@ -404,8 +418,12 @@ const PadecimientoActual = ({
                   <input
                     type="date"
                     value={d.fechaInicio}
-                    onChange={(e) => handleDolorChange("fechaInicio", e.target.value)}
-                    className="w-full pl-16 pr-6 py-6 rounded-3xl bg-white/80 border border-white/80 dark:bg-zinc-800/60 dark:border-white/10 backdrop-blur-md font-medium text-xl text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-zinc-900/10 shadow-sm cursor-pointer appearance-none"
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      handleDolorChange("fechaInicio", val);
+                      checkStep2Complete(val, undefined);
+                    }}
+                    className="w-full pl-16 pr-6 py-6 rounded-3xl bg-white dark:bg-zinc-900 border-2 border-zinc-200 dark:border-zinc-700 font-medium text-xl text-zinc-900 dark:text-zinc-100 outline-none focus:outline-none focus:border-zinc-900 dark:focus:border-white focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 transition-all shadow-sm cursor-pointer appearance-none"
                   />
                 </div>
               </div>
@@ -414,7 +432,10 @@ const PadecimientoActual = ({
                 <SubLabel>Modo de Aparición</SubLabel>
                 <ChipSelector
                   value={d.condicionAparicion}
-                  onChange={(val) => handleDolorChange("condicionAparicion", val)}
+                  onChange={(val) => {
+                    handleDolorChange("condicionAparicion", val);
+                    checkStep2Complete(undefined, val);
+                  }}
                   className="grid-cols-2"
                   options={[
                     { label: "Espontáneo", value: "espontaneo", subtitle: "Aparece solo" },
@@ -425,6 +446,7 @@ const PadecimientoActual = ({
             </div>
           </div>
         );
+      }
 
       case 3:
         return (
@@ -456,7 +478,16 @@ const PadecimientoActual = ({
           </div>
         );
 
-      case 4:
+      case 4: {
+        const checkStep4Complete = (newFreq?: string, newCarac?: string, newIntens?: string) => {
+          const f = newFreq !== undefined ? newFreq : d.frecuencia;
+          const c = newCarac !== undefined ? newCarac : d.caracter;
+          const i = newIntens !== undefined ? newIntens : d.intensidad;
+          if (f && c && i) {
+            autoAdvance(250);
+          }
+        };
+
         return (
           <div key="step-4">
             <Heading>Cualidades del dolor</Heading>
@@ -465,7 +496,10 @@ const PadecimientoActual = ({
                 <SubLabel>Frecuencia</SubLabel>
                 <ChipSelector
                   value={d.frecuencia}
-                  onChange={(val) => handleDolorChange("frecuencia", val)}
+                  onChange={(val) => {
+                    handleDolorChange("frecuencia", val);
+                    checkStep4Complete(val, undefined, undefined);
+                  }}
                   className="grid-cols-1 sm:grid-cols-2"
                   options={[
                     { label: "Intermitente", value: "intermitente", subtitle: "Va y viene" },
@@ -478,7 +512,10 @@ const PadecimientoActual = ({
                 <SubLabel>Carácter</SubLabel>
                 <ChipSelector
                   value={d.caracter}
-                  onChange={(val) => handleDolorChange("caracter", val)}
+                  onChange={(val) => {
+                    handleDolorChange("caracter", val);
+                    checkStep4Complete(undefined, val, undefined);
+                  }}
                   className="grid-cols-2"
                   options={[
                     { label: "Pulsátil", value: "pulsatil", subtitle: "Latido" },
@@ -503,7 +540,10 @@ const PadecimientoActual = ({
                     return (
                       <button
                         key={level}
-                        onClick={() => handleDolorChange("intensidad", level)}
+                        onClick={() => {
+                          handleDolorChange("intensidad", level);
+                          checkStep4Complete(undefined, undefined, level);
+                        }}
                         className={cn(
                           glassBtnBase, "py-5 text-center font-bold capitalize text-base",
                           active ? activeClass : glassBtnInactive
@@ -518,6 +558,7 @@ const PadecimientoActual = ({
             </div>
           </div>
         );
+      }
 
       case 5:
         return (
@@ -531,10 +572,7 @@ const PadecimientoActual = ({
                   ...d.localizacion,
                   tipo: val === 'localizado' ? 'Localizado' : val === 'irradiado' ? 'Irradiado' : ''
                 });
-                setTimeout(() => {
-                  setDir(1);
-                  setCurrentMicroStep(val === 'localizado' ? 6 : 7);
-                }, 200);
+                autoAdvance(250);
               }}
               options={[
                 { label: "Localizado", value: "localizado", subtitle: "En un punto exacto" },
@@ -544,20 +582,37 @@ const PadecimientoActual = ({
           </div>
         );
 
-      case 6:
+      case 6: {
+        const descActual = d.localizacion?.descripcion || defaultLocalizacion;
         return (
           <div key="step-6">
             <Heading>Localización exacta</Heading>
             <div className="relative mb-4">
               <AIInputWithLoading
-                value={d.localizacion?.descripcion || defaultLocalizacion}
+                value={descActual}
                 onChange={(val) => {
                   const finalVal = val.startsWith(defaultLocalizacion) ? val : defaultLocalizacion + val;
                   handleDolorChange("localizacion", { ...d.localizacion, descripcion: finalVal });
-                  setShowToothPicker(false);
                 }}
                 protectedPrefix={defaultLocalizacion}
-                contextSuggestions={[
+                renderCustomFirstSuggestion={
+                  <button
+                    type="button"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      setShowToothPicker(prev => !prev);
+                    }}
+                    className={cn(
+                      "text-sm font-semibold px-5 py-2.5 rounded-full border transition-all duration-300 hover:scale-105 shadow-sm",
+                      showToothPicker
+                        ? "bg-zinc-900 text-white border-transparent dark:bg-white dark:text-zinc-900"
+                        : "bg-emerald-500 text-white border-emerald-600 hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-500"
+                    )}
+                  >
+                    🦷 {showToothPicker ? "Ocultar números de diente" : "Seleccionar por número de diente"}
+                  </button>
+                }
+                contextSuggestions={showToothPicker ? [] : [
                   "la región premolar superior derecha",
                   "el sector anterior inferior",
                   "el primer molar inferior izquierdo",
@@ -571,52 +626,74 @@ const PadecimientoActual = ({
               />
             </div>
 
-            {/* Botón selector de órgano dental por número FDI */}
-            <div className="mt-1 px-2">
-              <button
-                type="button"
-                onClick={() => setShowToothPicker(prev => !prev)}
-                className={cn(
-                  "text-sm font-semibold px-5 py-2.5 rounded-full border transition-all duration-300 hover:scale-105 shadow-sm",
-                  showToothPicker
-                    ? "bg-zinc-900 text-white border-transparent dark:bg-white dark:text-zinc-900"
-                    : "bg-emerald-50/80 border-emerald-200 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-900/40 dark:border-emerald-800 dark:text-emerald-200"
-                )}
-              >
-                🦷 Seleccionar por número de diente
-              </button>
+            {/* Panel selector de órgano dental por número FDI (Multiselección) */}
+            {showToothPicker && (
+              <div className="mt-2 p-4 rounded-3xl bg-white/80 dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-800 backdrop-blur-md shadow-sm animate-in fade-in duration-300">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest">
+                    Notación FDI — selecciona uno o varios dientes:
+                  </p>
+                  <span className="text-xs text-zinc-400">Selección múltiple activa</span>
+                </div>
 
-              {showToothPicker && (
-                <div className="mt-4 animate-in fade-in duration-300">
-                  <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-3 ml-1">Notación FDI — selecciona el órgano dental:</p>
-
-                  {/* Cuadrante Superior Derecho: 11-18 */}
-                  {[{label: "Superior Der.", teeth: [18,17,16,15,14,13,12,11]}, {label: "Superior Izq.", teeth: [21,22,23,24,25,26,27,28]}, {label: "Inferior Izq.", teeth: [31,32,33,34,35,36,37,38]}, {label: "Inferior Der.", teeth: [41,42,43,44,45,46,47,48]}].map(quad => (
-                    <div key={quad.label} className="mb-3">
-                      <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1.5 ml-1">{quad.label}</p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {quad.teeth.map(num => (
+                {[{label: "Superior Der.", teeth: [11,12,13,14,15,16,17,18]}, {label: "Superior Izq.", teeth: [21,22,23,24,25,26,27,28]}, {label: "Inferior Izq.", teeth: [31,32,33,34,35,36,37,38]}, {label: "Inferior Der.", teeth: [41,42,43,44,45,46,47,48]}].map(quad => (
+                  <div key={quad.label} className="mb-3">
+                    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1.5 ml-1">{quad.label}</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {quad.teeth.map(num => {
+                        const toothStr = `${num}`;
+                        // Verificar si ya está presente en el texto
+                        const isSelected = descActual.includes(toothStr);
+                        return (
                           <button
                             key={num}
                             type="button"
                             onClick={() => {
-                              const newDesc = defaultLocalizacion + `el órgano dental ${num}`;
+                              let newDesc = descActual;
+                              if (isSelected) {
+                                // Remover el diente si se hace clic de nuevo
+                                newDesc = newDesc
+                                  .replace(new RegExp(`órg(?:ano)?s?\\.? dentales?\\s*`, 'gi'), '')
+                                  .split(',')
+                                  .map(s => s.trim())
+                                  .filter(s => s !== toothStr && s !== defaultLocalizacion.trim() && s !== "")
+                                  .join(', ');
+                                
+                                if (newDesc.length > 0) {
+                                  newDesc = defaultLocalizacion + (newDesc.includes("órganos dentales") || newDesc.includes("órgano dental") ? newDesc : `los órganos dentales ${newDesc}`);
+                                } else {
+                                  newDesc = defaultLocalizacion;
+                                }
+                              } else {
+                                // Agregar nuevo diente a la selección
+                                const extra = descActual.replace(defaultLocalizacion, '').trim();
+                                // Extraer los números ya seleccionados si los hay
+                                const teethMatch = extra.match(/\d+/g);
+                                const currentTeeth = teethMatch ? Array.from(new Set([...teethMatch, toothStr])) : [toothStr];
+                                const label = currentTeeth.length > 1 ? "los órganos dentales" : "el órgano dental";
+                                newDesc = defaultLocalizacion + `${label} ${currentTeeth.join(', ')}`;
+                              }
                               handleDolorChange("localizacion", { ...d.localizacion, descripcion: newDesc });
-                              setShowToothPicker(false);
                             }}
-                            className="w-10 h-10 rounded-xl border text-sm font-bold transition-all duration-200 hover:scale-110 bg-white/80 border-zinc-200 text-zinc-800 hover:bg-emerald-50 hover:border-emerald-400 hover:text-emerald-700 dark:bg-zinc-800/60 dark:border-white/10 dark:text-zinc-200 shadow-sm"
+                            className={cn(
+                              "w-10 h-10 rounded-xl border text-sm font-bold transition-all duration-200 hover:scale-110 shadow-sm flex items-center justify-center",
+                              isSelected
+                                ? "bg-emerald-600 border-emerald-600 text-white dark:bg-emerald-500 dark:border-emerald-500 scale-105 shadow-emerald-500/20"
+                                : "bg-white/80 border-zinc-200 text-zinc-800 hover:bg-emerald-50 hover:border-emerald-400 hover:text-emerald-700 dark:bg-zinc-800/60 dark:border-white/10 dark:text-zinc-200"
+                            )}
                           >
                             {num}
                           </button>
-                        ))}
-                      </div>
+                        );
+                      })}
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         );
+      }
 
       case 7:
         if (tieneAlivio === null) {
@@ -641,9 +718,7 @@ const PadecimientoActual = ({
                   onClick={() => {
                     setTieneAlivio(false);
                     handleDolorChange("atenuacion", "");
-                    setTimeout(() => {
-                      generarRedaccionYCompletar();
-                    }, 250);
+                    generarRedaccionYCompletar();
                   }}
                   className={cn(
                     glassBtnBase, "p-8 flex flex-col items-center justify-center gap-4 text-center hover:scale-[1.02]",
@@ -681,15 +756,6 @@ const PadecimientoActual = ({
                 ]}
               />
             </div>
-            <button
-              onClick={() => {
-                setTieneAlivio(null);
-                handleDolorChange("atenuacion", "");
-              }}
-              className="text-xs font-semibold text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 mt-4 flex items-center gap-1 transition-colors ml-1"
-            >
-              ← Cambiar respuesta
-            </button>
           </div>
         );
 
@@ -699,21 +765,21 @@ const PadecimientoActual = ({
   };
 
   return (
-    <div className="relative w-full max-w-2xl mx-auto pb-6 pt-0 -mt-2 sm:-mt-4">
-      {/* Main Glassmorphic Container */}
-      <div className="relative bg-white/80 dark:bg-zinc-900/40 backdrop-blur-xl border border-white/60 dark:border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.04)] dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.2)] rounded-[2.5rem] p-5 sm:p-8 flex flex-col justify-between">
+    <div className="relative w-full max-w-2xl mx-auto pb-4 pt-0">
+      {/* Container Transparente (Sin doble fondo) */}
+      <div className="relative bg-transparent p-1 sm:p-2 flex flex-col justify-between">
         
-        {/* Micro Step Indicator */}
-        <div className="flex justify-center gap-2 mb-6">
+        {/* Micro Step Indicator Centrado Minimalista */}
+        <div className="flex items-center justify-center w-full mb-6 gap-1.5 mx-auto">
           {seq.map((step) => {
-            const isActive = step === currentMicroStep;
-            const isPast = seq.indexOf(step) < seq.indexOf(currentMicroStep);
+            const isActive = step === currentMicroStepId;
+            const isPast = seq.indexOf(step) < seq.indexOf(currentMicroStepId);
             return (
               <div 
                 key={step} 
                 className={cn(
-                  "h-1.5 rounded-full transition-all duration-500", 
-                  isActive ? "w-8 bg-zinc-900 dark:bg-white" : 
+                  "h-1.5 rounded-full transition-all duration-300", 
+                  isActive ? "w-7 bg-zinc-900 dark:bg-white shadow-sm" : 
                   isPast ? "w-2 bg-zinc-400 dark:bg-zinc-500" : "w-1.5 bg-zinc-200 dark:bg-zinc-800"
                 )} 
               />
@@ -725,7 +791,7 @@ const PadecimientoActual = ({
         <div className="w-full">
           <AnimatePresence mode="wait" custom={dir}>
             <motion.div
-              key={currentMicroStep}
+              key={currentMicroStepId}
               custom={dir}
               variants={slideVariants}
               initial="enter"
@@ -738,44 +804,7 @@ const PadecimientoActual = ({
           </AnimatePresence>
         </div>
 
-        {/* Bottom Navigation */}
-        <div className="flex justify-between items-center pt-6 mt-6 z-10">
-          <div>
-            {seq.indexOf(currentMicroStep) > 0 && (
-              <button
-                onClick={handlePrev}
-                className="w-14 h-14 rounded-full bg-white/60 dark:bg-zinc-800/60 backdrop-blur-md border border-white/80 dark:border-white/10 text-zinc-600 dark:text-zinc-300 flex items-center justify-center shadow-sm hover:scale-105 hover:bg-white/90 dark:hover:bg-zinc-700/80 transition-all"
-              >
-                <ChevronLeft className="w-6 h-6 -ml-0.5" />
-              </button>
-            )}
-          </div>
 
-          <div className="flex items-center gap-4">
-            <button
-              onClick={clearForm}
-              className="text-sm font-bold text-zinc-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-2xl px-5 py-3 transition-colors flex items-center"
-            >
-              <Eraser className="w-4 h-4 mr-2" />
-              Reiniciar
-            </button>
-
-            {(!isLastStep || (currentMicroStep === 7 && tieneAlivio === true)) && (
-              <button
-                onClick={handleNext}
-                className={cn(
-                  "rounded-3xl px-8 py-4 text-lg font-bold shadow-md transition-all flex items-center gap-3",
-                  isLastStep
-                    ? "bg-emerald-500 text-white hover:bg-emerald-400 hover:shadow-lg scale-[1.02]"
-                    : "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 hover:scale-105"
-                )}
-              >
-                {isLastStep ? "Finalizar" : "Siguiente"}
-                <ChevronRight className="w-5 h-5" />
-              </button>
-            )}
-          </div>
-        </div>
 
       </div>
     </div>

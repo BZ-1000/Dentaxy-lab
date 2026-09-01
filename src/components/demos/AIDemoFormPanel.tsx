@@ -253,6 +253,7 @@ export const AIDemoFormPanel: React.FC = () => {
                     handleDolorChange={handleDolorChange}
                     handleSinSintomasChange={handleSinSintomasChange}
                     onToggleViewMode={() => setViewMode(prev => prev === 'form' ? 'redaction' : 'form')}
+                    onSectionComplete={handleNext}
                     {...commonProps}
                 />;
             case 'heredofamiliares':
