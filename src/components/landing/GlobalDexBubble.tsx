@@ -325,17 +325,42 @@ export function GlobalDexBubble() {
   const isMobile = useIsMobile();
   const { theme } = useTheme();
 
-  // DEX funciona en todas las rutas de la app y seed
-  const isAppRoute = 
-    location.pathname === "/app" || 
+  // DEX aparece en TODAS las rutas de producto/app de Dentaxy
+  // Excluye: marketing puro (/about, /contact, /terms, /privacy),
+  // admin panel (/admin/*), shop (/shop), verify (/verify), paciente form (/paciente/*), landing (/)
+  const isAppRoute = (
+    location.pathname === "/app" ||
     location.pathname.startsWith("/app/") ||
+    // Seed
+    location.pathname === "/seed" ||
     location.pathname === "/seed/app" ||
     location.pathname.startsWith("/seed/app/") ||
     location.pathname === "/seed/new" ||
     location.pathname.startsWith("/seed/new/") ||
+    location.pathname === "/seed/login" ||
+    // Academico UAO
     location.pathname.startsWith("/academico") ||
+    // Core y Singularity
     location.pathname === "/core" ||
-    location.pathname.startsWith("/singularity");
+    location.pathname.startsWith("/singularity") ||
+    // Academy
+    location.pathname === "/academy" ||
+    location.pathname.startsWith("/academy/") ||
+    // Hub y Módulos
+    location.pathname === "/hub" ||
+    location.pathname === "/modules" ||
+    // Demos (protegidos por DemoGuard)
+    location.pathname.startsWith("/demo/") ||
+    location.pathname === "/enterprise" ||
+    location.pathname === "/stark" ||
+    // Ecosistema Dentaxy
+    location.pathname === "/lab" ||
+    location.pathname === "/club" ||
+    location.pathname === "/news" ||
+    location.pathname === "/aura" ||
+    location.pathname === "/space" ||
+    location.pathname === "/mylana"
+  );
   
   const [isExpedienteOpen, setIsExpedienteOpen] = useState(false);
 
@@ -353,6 +378,9 @@ export function GlobalDexBubble() {
   const shouldHide = !isAppRoute || isExpedienteOpen;
 
   const [isChatOpen, setIsChatOpen] = useState(false);
+  // isOrbReady: true cuando la animación de crecimiento/cierre ha completado.
+  // Evita que el contenido del chat aparezca antes de que el orbe termine de crecer.
+  const [isOrbReady, setIsOrbReady] = useState(true);
   const [chatInput, setChatInput] = useState("");
   const [responseMessage, setResponseMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -1320,8 +1348,18 @@ export function GlobalDexBubble() {
         )}
       </AnimatePresence>
 
-      {/* ── Burbuja / Barra de Chat Expandible ── */}
+      {/* ── Burbuja / Barra de Chat Expandible — Animación Seamless ── */}
+      {/*
+        Fix #3 + #4:
+        - layoutId="dex-global-orb" en el contenedor: Framer Motion hace morphing
+          automático de la forma (círculo → barra) sin saltos.
+        - isOrbReady: el contenido interno (chat) solo aparece DESPUÉS de que la
+          animación de expansión ha terminado, usando onAnimationComplete.
+        - El video del orbe también tiene layout=true para que su tamaño anime
+          suavemente sin parpadeos.
+      */}
       <motion.div
+        layoutId="dex-global-orb"
         drag={!isChatOpen}
         dragMomentum={false}
         dragElastic={0.1}
@@ -1356,24 +1394,29 @@ export function GlobalDexBubble() {
         } : undefined}
         whileTap={!isChatOpen ? { scale: 0.96 } : undefined}
         transition={isChatOpen
-          ? { type: "spring", stiffness: 140, damping: 20 }
-          : { type: "tween", ease: "linear", duration: 0.2 }
+          ? { type: "spring", stiffness: 200, damping: 28, mass: 0.8 }
+          : { type: "spring", stiffness: 300, damping: 30, mass: 0.6 }
         }
+        onAnimationComplete={() => {
+          // El contenido del chat solo es visible una vez que el morfing terminó
+          setIsOrbReady(true);
+        }}
         className="fixed z-[9999] flex items-center cursor-pointer bg-transparent justify-center p-0"
         style={{
           right:  isMobile ? 16 : 48,
           bottom: isMobile ? 24 : 24,
-          willChange: "transform, width, height",
+          willChange: "transform, width, height, border-radius",
         }}
         onClick={() => {
           if (!isChatOpen && !isDraggingBubble.current) {
+            setIsOrbReady(false); // Marcar como "animando" antes del crecimiento
             setIsChatOpen(true);
           }
         }}
       >
-        {/* Contenedor interno: une flotación, brillo pulsátil y adaptabilidad de forma */}
+        {/* Contenedor interno: brillo pulsátil y adaptabilidad de forma */}
         <div
-          className={`w-full h-full flex items-center transition-all duration-300 ${
+          className={`w-full h-full flex items-center transition-colors duration-300 ${
             isChatOpen
               ? "bg-white border border-slate-100 p-1 justify-start rounded-[32px]"
               : `bg-transparent justify-center p-0 rounded-full ${
@@ -1388,21 +1431,24 @@ export function GlobalDexBubble() {
               : undefined,
           }}
         >
-          {/* Orbe de DEX */}
+          {/* Orbe de DEX — layout=true para que el tamaño anime junto con el contenedor */}
           <motion.div
+            layout
             onClick={(e) => {
               if (isChatOpen) {
                 e.stopPropagation();
+                setIsOrbReady(false);
                 setIsChatOpen(false);
                 setResponseMessage(null);
               }
             }}
-            className="rounded-full overflow-hidden shrink-0 flex items-center justify-center bg-transparent border-none shadow-none transition-all duration-300"
+            className="rounded-full overflow-hidden shrink-0 flex items-center justify-center bg-transparent border-none shadow-none"
             style={{
               width:  isChatOpen ? 56 : 102,
               height: isChatOpen ? 56 : 102,
               willChange: "width, height",
             }}
+            transition={{ type: "spring", stiffness: 200, damping: 28, mass: 0.8 }}
           >
             <video
               src="/logos/Dentaxy AI.mp4"
@@ -1418,14 +1464,14 @@ export function GlobalDexBubble() {
             />
           </motion.div>
 
-          {/* Caja de entrada estilo ChatGPT */}
+          {/* Caja de entrada — solo visible cuando isOrbReady=true (animación completada) */}
           <AnimatePresence>
-            {isChatOpen && (
+            {isChatOpen && isOrbReady && (
               <motion.div
-                initial={{ opacity: 0, x: 20 }}
+                initial={{ opacity: 0, x: 16 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-                transition={{ delay: 0.12 }}
+                exit={{ opacity: 0, x: 16 }}
+                transition={{ duration: 0.18, ease: "easeOut" }}
                 className="flex-1 flex items-center ml-3 pr-2"
                 onClick={(e) => e.stopPropagation()}
               >
@@ -1435,7 +1481,6 @@ export function GlobalDexBubble() {
                   onChange={(e) => {
                     const val = e.target.value;
                     setChatInput(val);
-                    // Disparar búsqueda en tiempo real para que el carrusel se filtre
                     window.dispatchEvent(new CustomEvent('dex:typingSearch', { detail: { query: val } }));
                   }}
                   placeholder="Pregunta lo que quieras"
